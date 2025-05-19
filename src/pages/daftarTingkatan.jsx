@@ -1,46 +1,57 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-const DaftarKategori = () => {
-  const [kategori, setKategori] = useState([]);
+const DaftarTingkatan = () => {
+  const [tingkatan, setTingkatan] = useState([
+    {
+      id: 1,
+      name: "Mudah",
+      description: "Tingkat kesulitan untuk pemula",
+    },
+    {
+      id: 2,
+      name: "Sedang",
+      description: "Tingkat kesulitan menengah",
+    },
+    {
+      id: 3,
+      name: "Sulit",
+      description: "Tingkat kesulitan untuk yang sudah mahir",
+    },
+    {
+      id: 4,
+      name: "Sangat Sulit",
+      description: "Tingkat kesulitan untuk ahli",
+    },
+  ]);
   const [error, setError] = useState("");
-  const [editingKategori, setEditingKategori] = useState(null);
+  const [editingTingkatan, setEditingTingkatan] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [newKategori, setNewKategori] = useState({ name: "", description: "" });
-  const [isLoading, setIsLoading] = useState(true);
+  const [newTingkatan, setNewTingkatan] = useState({
+    name: "",
+    description: "",
+  });
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   // Fungsi untuk delay
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-  // Fetch kategori dengan retry
-  const fetchKategori = async (retryCount = 0) => {
+  // Fetch tingkatan dengan retry
+  const fetchTingkatan = async (retryCount = 0) => {
     try {
       const token = localStorage.getItem("token");
-      const role = localStorage.getItem("role");
-
-      console.log("Token dari localStorage:", token);
-      console.log("Role dari localStorage:", role);
 
       if (!token) {
         navigate("/login");
         return;
       }
 
-      if (role !== "admin") {
-        setError("Anda tidak memiliki akses ke halaman ini");
-        return;
-      }
-
-      // Tambahkan format Bearer saat mengirim request
       const authToken = `Bearer ${token}`;
       console.log("Token yang dikirim:", authToken);
-      console.log(
-        `Mencoba mengambil data kategori (percobaan ke-${retryCount + 1})...`
-      );
 
       const response = await fetch(
-        "https://brainquiz0.up.railway.app/kategori/get-kategori",
+        "https://brainquiz0.up.railway.app/tingkatan/get-tingkatan",
         {
           method: "GET",
           headers: {
@@ -50,62 +61,49 @@ const DaftarKategori = () => {
         }
       );
 
-      console.log("Status response:", response.status);
       const data = await response.json();
-      console.log("Response data:", data);
 
       if (response.ok) {
         if (data.success && data.data) {
-          setKategori(data.data);
+          setTingkatan(data.data);
           setIsLoading(false);
         } else {
-          console.error("Format data tidak valid:", data);
           setError(data.message || "Format data tidak valid");
           setIsLoading(false);
         }
       } else {
         if (response.status === 401) {
-          console.error("Unauthorized - menghapus token dan redirect ke login");
           localStorage.removeItem("token");
           localStorage.removeItem("role");
           navigate("/login");
         } else {
-          // Jika masih ada kesempatan retry
           if (retryCount < 3) {
-            console.log(`Mencoba lagi dalam 30 detik... (${retryCount + 1}/3)`);
-            await delay(30000); // Tunggu 30 detik
-            return fetchKategori(retryCount + 1);
+            await delay(30000);
+            return fetchTingkatan(retryCount + 1);
           } else {
             setError(
-              data.message ||
-                "Gagal mengambil data kategori setelah beberapa percobaan"
+              "Gagal mengambil data tingkatan setelah beberapa percobaan"
             );
             setIsLoading(false);
           }
         }
       }
     } catch (err) {
-      console.error("Error saat fetch:", err);
-      // Jika masih ada kesempatan retry
       if (retryCount < 3) {
-        console.log(`Mencoba lagi dalam 30 detik... (${retryCount + 1}/3)`);
-        await delay(30000); // Tunggu 30 detik
-        return fetchKategori(retryCount + 1);
+        await delay(30000);
+        return fetchTingkatan(retryCount + 1);
       } else {
-        setError(
-          "Terjadi kesalahan saat mengambil data setelah beberapa percobaan"
-        );
+        setError("Terjadi kesalahan saat mengambil data");
         setIsLoading(false);
       }
     }
   };
 
   useEffect(() => {
-    console.log("Component mounted, memulai fetch data...");
-    fetchKategori();
+    // fetchTingkatan(); // Dikomentari untuk sementara karena menggunakan data dummy
   }, []);
 
-  // Add kategori
+  // Add tingkatan
   const handleAdd = async (e) => {
     e.preventDefault();
     setError("");
@@ -117,43 +115,40 @@ const DaftarKategori = () => {
         return;
       }
 
-      const kategoriData = {
-        name: newKategori.name,
-        description: newKategori.description,
+      const tingkatanData = {
+        name: newTingkatan.name,
+        description: newTingkatan.description,
       };
 
-      console.log("Menambah kategori:", kategoriData); // Debug request
       const response = await fetch(
-        "https://brainquiz0.up.railway.app/kategori/add-kategori",
+        "https://brainquiz0.up.railway.app/tingkatan/add-tingkatan",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(kategoriData),
+          body: JSON.stringify(tingkatanData),
         }
       );
       const data = await response.json();
-      console.log("Response add:", data); // Debug response
 
       if (response.ok) {
-        alert("Kategori berhasil ditambahkan");
-        setNewKategori({ name: "", description: "" });
+        alert("Tingkatan berhasil ditambahkan");
+        setNewTingkatan({ name: "", description: "" });
         setShowAddForm(false);
-        fetchKategori();
+        fetchTingkatan();
       } else {
-        setError(data.message || "Gagal menambahkan kategori");
+        setError(data.message || "Gagal menambahkan tingkatan");
       }
     } catch (err) {
-      console.error("Error saat add:", err);
-      setError("Terjadi kesalahan saat menambahkan kategori");
+      setError("Terjadi kesalahan saat menambahkan tingkatan");
     }
   };
 
-  // Delete kategori
+  // Delete tingkatan
   const handleDelete = async (id) => {
-    if (!window.confirm("Apakah Anda yakin ingin menghapus kategori ini?"))
+    if (!window.confirm("Apakah Anda yakin ingin menghapus tingkatan ini?"))
       return;
 
     try {
@@ -164,9 +159,8 @@ const DaftarKategori = () => {
         return;
       }
 
-      console.log("Menghapus kategori:", id); // Debug request
       const response = await fetch(
-        `https://brainquiz0.up.railway.app/kategori/delete-kategori/${id}`,
+        `https://brainquiz0.up.railway.app/tingkatan/delete-tingkatan/${id}`,
         {
           method: "DELETE",
           headers: {
@@ -175,21 +169,19 @@ const DaftarKategori = () => {
         }
       );
       const data = await response.json();
-      console.log("Response delete:", data); // Debug response
 
       if (response.ok) {
-        alert("Kategori berhasil dihapus");
-        fetchKategori();
+        alert("Tingkatan berhasil dihapus");
+        fetchTingkatan();
       } else {
-        setError(data.message || "Gagal menghapus kategori");
+        setError(data.message || "Gagal menghapus tingkatan");
       }
     } catch (err) {
-      console.error("Error saat delete:", err);
-      setError("Terjadi kesalahan saat menghapus kategori");
+      setError("Terjadi kesalahan saat menghapus tingkatan");
     }
   };
 
-  // Update kategori
+  // Update tingkatan
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
@@ -201,13 +193,12 @@ const DaftarKategori = () => {
       }
 
       const updateData = {
-        name: editingKategori.name,
-        description: editingKategori.description,
+        name: editingTingkatan.name,
+        description: editingTingkatan.description,
       };
 
-      console.log("Update kategori:", updateData); // Debug request
       const response = await fetch(
-        `https://brainquiz0.up.railway.app/kategori/update-kategori/${editingKategori.ID}`,
+        `https://brainquiz0.up.railway.app/tingkatan/update-tingkatan/${editingTingkatan.id}`,
         {
           method: "PATCH",
           headers: {
@@ -218,18 +209,16 @@ const DaftarKategori = () => {
         }
       );
       const data = await response.json();
-      console.log("Response update:", data); // Debug response
 
       if (response.ok) {
-        alert("Kategori berhasil diperbarui");
-        setEditingKategori(null);
-        fetchKategori();
+        alert("Tingkatan berhasil diperbarui");
+        setEditingTingkatan(null);
+        fetchTingkatan();
       } else {
-        setError(data.message || "Gagal memperbarui kategori");
+        setError(data.message || "Gagal memperbarui tingkatan");
       }
     } catch (err) {
-      console.error("Error saat update:", err);
-      setError("Terjadi kesalahan saat memperbarui kategori");
+      setError("Terjadi kesalahan saat memperbarui tingkatan");
     }
   };
 
@@ -240,13 +229,13 @@ const DaftarKategori = () => {
           <div className="bg-white rounded-lg shadow-lg p-6">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-gray-900">
-                Daftar Kategori
+                Daftar Tingkatan
               </h2>
               <button
                 onClick={() => setShowAddForm(!showAddForm)}
                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
-                {showAddForm ? "Batal" : "Tambah Kategori"}
+                {showAddForm ? "Batal" : "Tambah Tingkatan"}
               </button>
             </div>
 
@@ -262,7 +251,7 @@ const DaftarKategori = () => {
             {isLoading && (
               <div className="flex justify-center items-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                <p className="ml-3 text-gray-600">Memuat data kategori...</p>
+                <p className="ml-3 text-gray-600">Memuat data tingkatan...</p>
               </div>
             )}
 
@@ -271,7 +260,7 @@ const DaftarKategori = () => {
                 {showAddForm && (
                   <div className="bg-gray-50 p-6 rounded-lg mb-6">
                     <h3 className="text-lg font-medium text-gray-900 mb-4">
-                      Tambah Kategori Baru
+                      Tambah Tingkatan Baru
                     </h3>
                     <form onSubmit={handleAdd} className="space-y-4">
                       <div>
@@ -279,15 +268,15 @@ const DaftarKategori = () => {
                           htmlFor="name"
                           className="block text-sm font-medium text-gray-700"
                         >
-                          Nama Kategori
+                          Nama Tingkatan
                         </label>
                         <input
                           type="text"
                           id="name"
-                          value={newKategori.name}
+                          value={newTingkatan.name}
                           onChange={(e) =>
-                            setNewKategori({
-                              ...newKategori,
+                            setNewTingkatan({
+                              ...newTingkatan,
                               name: e.target.value,
                             })
                           }
@@ -305,10 +294,10 @@ const DaftarKategori = () => {
                         <input
                           type="text"
                           id="description"
-                          value={newKategori.description}
+                          value={newTingkatan.description}
                           onChange={(e) =>
-                            setNewKategori({
-                              ...newKategori,
+                            setNewTingkatan({
+                              ...newTingkatan,
                               description: e.target.value,
                             })
                           }
@@ -320,7 +309,7 @@ const DaftarKategori = () => {
                         type="submit"
                         className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                       >
-                        Tambah Kategori
+                        Tambah Tingkatan
                       </button>
                     </form>
                   </div>
@@ -351,17 +340,17 @@ const DaftarKategori = () => {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {kategori && kategori.length > 0 ? (
-                        kategori.map((item) => (
-                          <tr key={item.ID} className="hover:bg-gray-50">
+                      {tingkatan && tingkatan.length > 0 ? (
+                        tingkatan.map((item) => (
+                          <tr key={item.id} className="hover:bg-gray-50">
                             <td className="px-6 py-4 whitespace-nowrap">
-                              {editingKategori?.ID === item.ID ? (
+                              {editingTingkatan?.id === item.id ? (
                                 <input
                                   type="text"
-                                  value={editingKategori.name}
+                                  value={editingTingkatan.name}
                                   onChange={(e) =>
-                                    setEditingKategori({
-                                      ...editingKategori,
+                                    setEditingTingkatan({
+                                      ...editingTingkatan,
                                       name: e.target.value,
                                     })
                                   }
@@ -374,13 +363,13 @@ const DaftarKategori = () => {
                               )}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              {editingKategori?.ID === item.ID ? (
+                              {editingTingkatan?.id === item.id ? (
                                 <input
                                   type="text"
-                                  value={editingKategori.description}
+                                  value={editingTingkatan.description}
                                   onChange={(e) =>
-                                    setEditingKategori({
-                                      ...editingKategori,
+                                    setEditingTingkatan({
+                                      ...editingTingkatan,
                                       description: e.target.value,
                                     })
                                   }
@@ -388,12 +377,12 @@ const DaftarKategori = () => {
                                 />
                               ) : (
                                 <div className="text-sm text-gray-900">
-                                  {item.description || "-"}
+                                  {item.description}
                                 </div>
                               )}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                              {editingKategori?.ID === item.ID ? (
+                              {editingTingkatan?.id === item.id ? (
                                 <div className="flex space-x-3">
                                   <button
                                     onClick={handleUpdate}
@@ -402,7 +391,7 @@ const DaftarKategori = () => {
                                     Simpan
                                   </button>
                                   <button
-                                    onClick={() => setEditingKategori(null)}
+                                    onClick={() => setEditingTingkatan(null)}
                                     className="text-gray-600 hover:text-gray-900"
                                   >
                                     Batal
@@ -411,13 +400,13 @@ const DaftarKategori = () => {
                               ) : (
                                 <div className="flex space-x-3">
                                   <button
-                                    onClick={() => setEditingKategori(item)}
+                                    onClick={() => setEditingTingkatan(item)}
                                     className="text-blue-600 hover:text-blue-900"
                                   >
                                     Edit
                                   </button>
                                   <button
-                                    onClick={() => handleDelete(item.ID)}
+                                    onClick={() => handleDelete(item.id)}
                                     className="text-red-600 hover:text-red-900"
                                   >
                                     Hapus
@@ -433,7 +422,7 @@ const DaftarKategori = () => {
                             colSpan="3"
                             className="px-6 py-4 text-center text-sm text-gray-500"
                           >
-                            Tidak ada data kategori
+                            Tidak ada data tingkatan
                           </td>
                         </tr>
                       )}
@@ -449,4 +438,4 @@ const DaftarKategori = () => {
   );
 };
 
-export default DaftarKategori;
+export default DaftarTingkatan;

@@ -2,12 +2,38 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const DaftarKategori = () => {
-  const [kategori, setKategori] = useState([]);
+  const [kategori, setKategori] = useState([
+    {
+      id: 1,
+      name: "Matematika",
+      description: "Kategori untuk soal-soal matematika dasar dan lanjutan",
+    },
+    {
+      id: 2,
+      name: "Bahasa Indonesia",
+      description: "Kategori untuk soal-soal bahasa Indonesia",
+    },
+    {
+      id: 3,
+      name: "Bahasa Inggris",
+      description: "Kategori untuk soal-soal bahasa Inggris",
+    },
+    {
+      id: 4,
+      name: "IPA",
+      description: "Kategori untuk soal-soal Ilmu Pengetahuan Alam",
+    },
+    {
+      id: 5,
+      name: "IPS",
+      description: "Kategori untuk soal-soal Ilmu Pengetahuan Sosial",
+    },
+  ]);
   const [error, setError] = useState("");
   const [editingKategori, setEditingKategori] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [newKategori, setNewKategori] = useState({ name: "", description: "" });
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   // Fungsi untuk delay
@@ -17,18 +43,9 @@ const DaftarKategori = () => {
   const fetchKategori = async (retryCount = 0) => {
     try {
       const token = localStorage.getItem("token");
-      const role = localStorage.getItem("role");
-
-      console.log("Token dari localStorage:", token);
-      console.log("Role dari localStorage:", role);
 
       if (!token) {
         navigate("/login");
-        return;
-      }
-
-      if (role !== "admin") {
-        setError("Anda tidak memiliki akses ke halaman ini");
         return;
       }
 
@@ -49,10 +66,9 @@ const DaftarKategori = () => {
           },
         }
       );
-      
+
       console.log("Status response:", response.status);
       const data = await response.json();
-      
 
       if (response.ok) {
         if (data.success && data.data) {
@@ -102,7 +118,8 @@ const DaftarKategori = () => {
 
   useEffect(() => {
     console.log("Component mounted, memulai fetch data...");
-    fetchKategori();
+    // fetchKategori(); // Dikomentari untuk sementara karena menggunakan data dummy
+    setIsLoading(false); // Set loading ke false karena menggunakan data dummy
   }, []);
 
   // Add kategori
@@ -234,217 +251,193 @@ const DaftarKategori = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">
-                Daftar Kategori
-              </h2>
-              <button
-                onClick={() => setShowAddForm(!showAddForm)}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                {showAddForm ? "Batal" : "Tambah Kategori"}
-              </button>
+    <div className="min-h-screen bg-gray-100 py-6 flex flex-col justify-center sm:py-12">
+      <div className="relative py-3 sm:max-w-xl sm:mx-auto">
+        <div className="relative px-4 py-10 bg-white mx-8 md:mx-0 shadow rounded-3xl sm:p-10">
+          <div className="max-w-md mx-auto">
+            <div className="flex items-center space-x-5">
+              <div className="block pl-2 font-semibold text-xl text-gray-700">
+                <h2 className="leading-relaxed">Daftar Kategori</h2>
+              </div>
             </div>
-
             {error && (
-              <div
-                className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
-                role="alert"
-              >
-                <span className="block sm:inline">{error}</span>
+              <div className="mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+                {error}
               </div>
             )}
-
-            {isLoading && (
-              <div className="flex justify-center items-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                <p className="ml-3 text-gray-600">Memuat data kategori...</p>
-              </div>
-            )}
-
-            {!isLoading && (
-              <>
-                {showAddForm && (
-                  <div className="bg-gray-50 p-6 rounded-lg mb-6">
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">
-                      Tambah Kategori Baru
-                    </h3>
-                    <form onSubmit={handleAdd} className="space-y-4">
-                      <div>
-                        <label
-                          htmlFor="name"
-                          className="block text-sm font-medium text-gray-700"
-                        >
-                          Nama Kategori
-                        </label>
-                        <input
-                          type="text"
-                          id="name"
-                          value={newKategori.name}
-                          onChange={(e) =>
-                            setNewKategori({
-                              ...newKategori,
-                              name: e.target.value,
-                            })
-                          }
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label
-                          htmlFor="description"
-                          className="block text-sm font-medium text-gray-700"
-                        >
-                          Deskripsi
-                        </label>
-                        <input
-                          type="text"
-                          id="description"
-                          value={newKategori.description}
-                          onChange={(e) =>
-                            setNewKategori({
-                              ...newKategori,
-                              description: e.target.value,
-                            })
-                          }
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                          required
-                        />
-                      </div>
-                      <button
-                        type="submit"
-                        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                      >
-                        Tambah Kategori
-                      </button>
-                    </form>
-                  </div>
-                )}
-
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                          Nama
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                          Deskripsi
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                          Aksi
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {kategori && kategori.length > 0 ? (
-                        kategori.map((item) => (
-                          <tr key={item.id} className="hover:bg-gray-50">
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              {editingKategori?.id === item.id ? (
-                                <input
-                                  type="text"
-                                  value={editingKategori.name}
-                                  onChange={(e) =>
-                                    setEditingKategori({
-                                      ...editingKategori,
-                                      name: e.target.value,
-                                    })
-                                  }
-                                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                                />
-                              ) : (
-                                <div className="text-sm text-gray-900">
-                                  {item.name}
-                                </div>
-                              )}
+            <div className="divide-y divide-gray-200">
+              <div className="py-8 text-base leading-6 space-y-4 text-gray-700 sm:text-lg sm:leading-7">
+                <div className="flex justify-end mb-4">
+                  <button
+                    onClick={() => setShowAddForm(true)}
+                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                  >
+                    Tambah Kategori
+                  </button>
+                </div>
+                {isLoading ? (
+                  <div className="text-center">Loading...</div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full bg-white">
+                      <thead>
+                        <tr>
+                          <th className="px-6 py-3 border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            Nama
+                          </th>
+                          <th className="px-6 py-3 border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            Deskripsi
+                          </th>
+                          <th className="px-6 py-3 border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            Aksi
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white">
+                        {kategori.map((item) => (
+                          <tr key={item.id}>
+                            <td className="px-6 py-4 whitespace-nowrap border-b border-gray-200">
+                              {item.name}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              {editingKategori?.id === item.id ? (
-                                <input
-                                  type="text"
-                                  value={editingKategori.description}
-                                  onChange={(e) =>
-                                    setEditingKategori({
-                                      ...editingKategori,
-                                      description: e.target.value,
-                                    })
-                                  }
-                                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                                />
-                              ) : (
-                                <div className="text-sm text-gray-900">
-                                  {item.description}
-                                </div>
-                              )}
+                            <td className="px-6 py-4 whitespace-nowrap border-b border-gray-200">
+                              {item.description}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                              {editingKategori?.id === item.id ? (
-                                <div className="flex space-x-3">
-                                  <button
-                                    onClick={handleUpdate}
-                                    className="text-green-600 hover:text-green-900"
-                                  >
-                                    Simpan
-                                  </button>
-                                  <button
-                                    onClick={() => setEditingKategori(null)}
-                                    className="text-gray-600 hover:text-gray-900"
-                                  >
-                                    Batal
-                                  </button>
-                                </div>
-                              ) : (
-                                <div className="flex space-x-3">
-                                  <button
-                                    onClick={() => setEditingKategori(item)}
-                                    className="text-blue-600 hover:text-blue-900"
-                                  >
-                                    Edit
-                                  </button>
-                                  <button
-                                    onClick={() => handleDelete(item.id)}
-                                    className="text-red-600 hover:text-red-900"
-                                  >
-                                    Hapus
-                                  </button>
-                                </div>
-                              )}
+                            <td className="px-6 py-4 whitespace-nowrap border-b border-gray-200">
+                              <button
+                                onClick={() => setEditingKategori(item)}
+                                className="text-indigo-600 hover:text-indigo-900 mr-4"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => handleDelete(item.id)}
+                                className="text-red-600 hover:text-red-900"
+                              >
+                                Hapus
+                              </button>
                             </td>
                           </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td
-                            colSpan="3"
-                            className="px-6 py-4 text-center text-sm text-gray-500"
-                          >
-                            Tidak ada data kategori
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </>
-            )}
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Form Tambah Kategori */}
+      {showAddForm && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div className="mt-3 text-center">
+              <h3 className="text-lg leading-6 font-medium text-gray-900">
+                Tambah Kategori Baru
+              </h3>
+              <form onSubmit={handleAdd} className="mt-4">
+                <div className="mt-2 px-7 py-3">
+                  <input
+                    type="text"
+                    placeholder="Nama Kategori"
+                    value={newKategori.name}
+                    onChange={(e) =>
+                      setNewKategori({ ...newKategori, name: e.target.value })
+                    }
+                    className="mb-3 px-3 py-2 border rounded-lg w-full"
+                    required
+                  />
+                  <textarea
+                    placeholder="Deskripsi"
+                    value={newKategori.description}
+                    onChange={(e) =>
+                      setNewKategori({
+                        ...newKategori,
+                        description: e.target.value,
+                      })
+                    }
+                    className="px-3 py-2 border rounded-lg w-full"
+                    required
+                  />
+                </div>
+                <div className="items-center px-4 py-3">
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                  >
+                    Simpan
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddForm(false)}
+                    className="ml-3 px-4 py-2 bg-gray-100 text-gray-700 text-base font-medium rounded-md shadow-sm hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300"
+                  >
+                    Batal
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Form Edit Kategori */}
+      {editingKategori && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div className="mt-3 text-center">
+              <h3 className="text-lg leading-6 font-medium text-gray-900">
+                Edit Kategori
+              </h3>
+              <form onSubmit={handleUpdate} className="mt-4">
+                <div className="mt-2 px-7 py-3">
+                  <input
+                    type="text"
+                    placeholder="Nama Kategori"
+                    value={editingKategori.name}
+                    onChange={(e) =>
+                      setEditingKategori({
+                        ...editingKategori,
+                        name: e.target.value,
+                      })
+                    }
+                    className="mb-3 px-3 py-2 border rounded-lg w-full"
+                    required
+                  />
+                  <textarea
+                    placeholder="Deskripsi"
+                    value={editingKategori.description}
+                    onChange={(e) =>
+                      setEditingKategori({
+                        ...editingKategori,
+                        description: e.target.value,
+                      })
+                    }
+                    className="px-3 py-2 border rounded-lg w-full"
+                    required
+                  />
+                </div>
+                <div className="items-center px-4 py-3">
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                  >
+                    Simpan
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditingKategori(null)}
+                    className="ml-3 px-4 py-2 bg-gray-100 text-gray-700 text-base font-medium rounded-md shadow-sm hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300"
+                  >
+                    Batal
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

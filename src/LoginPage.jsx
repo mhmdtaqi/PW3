@@ -33,7 +33,7 @@ const LoginPage = () => {
           localStorage.setItem("role", role);
 
           console.log("Login berhasil, token tersimpan:", token);
-          navigate("/kategori", { replace: true });
+          navigate("/dashboard", { replace: true });
         } else {
           console.error("Format response tidak valid:", response);
           setError(response.message || "Format response tidak valid");
@@ -114,11 +114,11 @@ const LoginPage = () => {
             </div>
 
             <p className="mt-4 text-center text-sm">
-        Belum punya akun?{" "}
-        <a href="/signup" className="text-blue-500">
-          Signup
-        </a>
-      </p>
+              Belum punya akun?{" "}
+              <a href="/register" className="text-blue-500">
+                Signup
+              </a>
+            </p>
           </form>
         </div>
       </div>

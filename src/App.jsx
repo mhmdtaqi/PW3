@@ -1,59 +1,89 @@
 import React from "react";
 import {
   BrowserRouter as Router,
-  Route,
   Routes,
+  Route,
   Navigate,
 } from "react-router-dom";
-import LoginPage from "./LoginPage";
-import SignupPage from "./SignupPage";
+import Login from "./LoginPage";
+import Register from "./SignupPage";
+import Dashboard from "./dashboard";
 import DaftarKategori from "./pages/daftarKategori";
+import DaftarTingkatan from "./pages/daftarTingkatan";
+import DaftarPendidikan from "./pages/daftarPendidikan";
+import DaftarKelas from "./pages/daftarKelas";
+import Navbar from "./components/Navbar";
 
-// Protected Route Component
-const ProtectedRoute = ({ children, allowedRoles = [] }) => {
+const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role");
-
-  console.log("Protected Route Check:", { token, role, allowedRoles }); // Debug routing
-
-  if (!token) {
-    console.log("No token, redirecting to login"); // Debug redirect
-    return <Navigate to="/login" replace />;
-  }
-
-  if (allowedRoles.length > 0 && !allowedRoles.includes(role)) {
-    console.log("Unauthorized role, redirecting to login"); // Debug redirect
-    localStorage.removeItem("token"); // Hapus token jika role tidak sesuai
-    localStorage.removeItem("role");
-    return <Navigate to="/login" replace />;
-  }
-
-  console.log("Access granted to protected route"); // Debug access
-  return children;
+  return token ? children : <Navigate to="/login" />;
 };
 
-function App() {
-  console.log("App component rendered"); // Debug app render
-
+const App = () => {
   return (
     <Router>
-      <div className="min-h-screen bg-gray-50">
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage />} />
-          <Route
-            path="/kategori"
-            element={
-              <ProtectedRoute allowedRoles={["admin"]}>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route
+          path="/dashboard"
+          element={
+            <PrivateRoute>
+              <>
+                <Navbar />
+                <Dashboard />
+              </>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/daftar-kategori"
+          element={
+            <PrivateRoute>
+              <>
+                <Navbar />
                 <DaftarKategori />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/" element={<Navigate to="/login" replace />} />
-        </Routes>
-      </div>
+              </>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/daftar-tingkatan"
+          element={
+            <PrivateRoute>
+              <>
+                <Navbar />
+                <DaftarTingkatan />
+              </>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/daftar-pendidikan"
+          element={
+            <PrivateRoute>
+              <>
+                <Navbar />
+                <DaftarPendidikan />
+              </>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/daftar-kelas"
+          element={
+            <PrivateRoute>
+              <>
+                <Navbar />
+                <DaftarKelas />
+              </>
+            </PrivateRoute>
+          }
+        />
+        <Route path="/" element={<Navigate to="/login" />} />
+      </Routes>
     </Router>
   );
-}
+};
 
 export default App;
