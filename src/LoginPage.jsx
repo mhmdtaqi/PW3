@@ -1,46 +1,127 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     try {
-      const res = await fetch('https://brainquiz0.up.railway.app/user/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      console.log("Mencoba login dengan:", { email }); // Debug login attempt
+
+      const res = await fetch("https://brainquiz0.up.railway.app/user/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-      const data = await res.json();
+
+      const response = await res.json();
+      console.log("Response dari server:", response);
+
       if (res.ok) {
-        localStorage.setItem('token', data.token);
-        alert('Login berhasil');
-        // navigate ke halaman utama jika ada
+        if (response.success && response.data) {
+          // Simpan token tanpa format Bearer
+          const token = response.data.token;
+          const role = response.data.role;
+
+          // Simpan token tanpa format Bearer
+          localStorage.setItem("token", token);
+          localStorage.setItem("role", role);
+
+          console.log("Login berhasil, token tersimpan:", token);
+          navigate("/kategori", { replace: true });
+        } else {
+          console.error("Format response tidak valid:", response);
+          setError(response.message || "Format response tidak valid");
+        }
       } else {
-        setError(data.message || 'Login gagal');
+        console.error("Login gagal:", response);
+        setError(response.message || "Login gagal");
       }
     } catch (err) {
-      setError('Terjadi kesalahan');
+      console.error("Error saat login:", err);
+      setError("Terjadi kesalahan saat login");
     }
   };
 
   return (
-    <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-      <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
-      {error && <div className="text-red-500 mb-4 text-sm">{error}</div>}
-      <form onSubmit={handleLogin} className="space-y-4">
-        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-2 border rounded" required />
-        <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-2 border rounded" required />
-        <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Login</button>
-      </form>
-      <p className="mt-4 text-center text-sm">
-        Belum punya akun? <a href="/signup" className="text-blue-500">Daftar</a>
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          Login
+        </h2>
+      </div>
+
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+              {error}
+            </div>
+          )}
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Email
+              </label>
+              <div className="mt-1">
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Password
+              </label>
+              <div className="mt-1">
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+            </div>
+
+            <div>
+              <button
+                type="submit"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Login
+              </button>
+            </div>
+
+            <p className="mt-4 text-center text-sm">
+        Belum punya akun?{" "}
+        <a href="/signup" className="text-blue-500">
+          Signup
+        </a>
       </p>
+          </form>
+        </div>
+      </div>
     </div>
   );
 };
