@@ -2,33 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const DaftarKategori = () => {
-  const [kategori, setKategori] = useState([
-    {
-      id: 1,
-      name: "Matematika",
-      description: "Kategori untuk soal-soal matematika dasar dan lanjutan",
-    },
-    {
-      id: 2,
-      name: "Bahasa Indonesia",
-      description: "Kategori untuk soal-soal bahasa Indonesia",
-    },
-    {
-      id: 3,
-      name: "Bahasa Inggris",
-      description: "Kategori untuk soal-soal bahasa Inggris",
-    },
-    {
-      id: 4,
-      name: "IPA",
-      description: "Kategori untuk soal-soal Ilmu Pengetahuan Alam",
-    },
-    {
-      id: 5,
-      name: "IPS",
-      description: "Kategori untuk soal-soal Ilmu Pengetahuan Sosial",
-    },
-  ]);
+  const [kategori, setKategori] = useState([]);
   const [error, setError] = useState("");
   const [editingKategori, setEditingKategori] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -67,8 +41,9 @@ const DaftarKategori = () => {
         }
       );
 
-      console.log("Status response:", response.status);
+      console.log("Status response:", response);
       const data = await response.json();
+      console.log(data)
 
       if (response.ok) {
         if (data.success && data.data) {
@@ -117,8 +92,7 @@ const DaftarKategori = () => {
   };
 
   useEffect(() => {
-    console.log("Component mounted, memulai fetch data...");
-    // fetchKategori(); // Dikomentari untuk sementara karena menggunakan data dummy
+     fetchKategori(); // Dikomentari untuk sementara karena menggunakan data dummy
     setIsLoading(false); // Set loading ke false karena menggunakan data dummy
   }, []);
 
