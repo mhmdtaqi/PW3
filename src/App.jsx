@@ -5,13 +5,14 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import Login from "./LoginPage";
-import Register from "./SignupPage";
-import Dashboard from "./dashboard";
+import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
+import DashboardPage from "./pages/DashboardPage";
 import DaftarKategori from "./pages/daftarKategori";
 import DaftarTingkatan from "./pages/daftarTingkatan";
 import DaftarPendidikan from "./pages/daftarPendidikan";
 import DaftarKelas from "./pages/daftarKelas";
+import DetailKelas from "./pages/DetailKelas";
 import Navbar from "./components/Navbar";
 
 const PrivateRoute = ({ children }) => {
@@ -23,15 +24,15 @@ const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<SignupPage />} />
         <Route
           path="/dashboard"
           element={
             <PrivateRoute>
               <>
                 <Navbar />
-                <Dashboard />
+                <DashboardPage />
               </>
             </PrivateRoute>
           }
@@ -76,6 +77,17 @@ const App = () => {
               <>
                 <Navbar />
                 <DaftarKelas />
+              </>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/kelas/:id"
+          element={
+            <PrivateRoute>
+              <>
+                <Navbar />
+                <DetailKelas />
               </>
             </PrivateRoute>
           }
