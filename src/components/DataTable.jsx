@@ -126,6 +126,7 @@ const DataTable = ({
       const success = await onEdit(editingItem.id, editingItem);
       if (success) {
         setEditingItem(null);
+        setShowAddForm(false);
         await fetchData();
       }
     } catch (err) {
@@ -153,7 +154,7 @@ const DataTable = ({
   };
 
   const renderForm = () => {
-    if (!showAddForm) return null;
+    if (!showAddForm && !editingItem) return null;
 
     return (
       <div className="mb-4 p-4 bg-white rounded shadow">
@@ -185,7 +186,7 @@ const DataTable = ({
                 />
               ) : (
                 <input
-                  type={field.type}
+                  type={field.type || "text"}
                   name={field.name}
                   value={
                     editingItem ? editingItem[field.name] : newItem[field.name]
@@ -210,6 +211,12 @@ const DataTable = ({
               onClick={() => {
                 setEditingItem(null);
                 setShowAddForm(false);
+                setNewItem(
+                  fields.reduce(
+                    (acc, field) => ({ ...acc, [field.name]: "" }),
+                    {}
+                  )
+                );
               }}
               className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
             >
