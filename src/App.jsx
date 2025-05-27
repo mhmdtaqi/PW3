@@ -13,6 +13,7 @@ import DaftarTingkatan from "./pages/daftarTingkatan";
 import DaftarPendidikan from "./pages/daftarPendidikan";
 import DaftarKelas from "./pages/daftarKelas";
 import DetailKelas from "./pages/DetailKelas";
+import ManageSoal from "./pages/admin/ManageSoal";
 import Navbar from "./components/Navbar";
 
 const PrivateRoute = ({ children }) => {
@@ -88,6 +89,17 @@ const App = () => {
               <>
                 <Navbar />
                 <DetailKelas />
+              </>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/admin/manage-soal"
+          element={
+            <PrivateRoute>
+              <>
+                <Navbar />
+                <ManageSoal />
               </>
             </PrivateRoute>
           }

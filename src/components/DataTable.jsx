@@ -31,6 +31,7 @@ const DataTable = ({
         return;
       }
 
+      console.log("Fetching data from:", endpoint);
       const response = await fetch(endpoint, {
         method: "GET",
         headers: {
@@ -39,9 +40,15 @@ const DataTable = ({
         },
       });
 
+      console.log("Response status:", response.status);
+      console.log("Response headers:", response.headers);
+
       // Cek content type
       const contentType = response.headers.get("content-type");
+      console.log("Content-Type:", contentType);
+
       if (!contentType || !contentType.includes("application/json")) {
+        console.error("Invalid content type:", contentType);
         if (response.status === 401) {
           localStorage.removeItem("token");
           localStorage.removeItem("role");
@@ -61,7 +68,11 @@ const DataTable = ({
           setData(transformedData);
           setError("");
         } else {
-          setError(responseData.message || "Format data tidak valid");
+          console.error("Format data tidak valid:", responseData);
+          setError(
+            "Format data tidak valid: " +
+              (responseData.message || "Tidak ada pesan error")
+          );
         }
       } else {
         if (response.status === 401) {
@@ -70,6 +81,7 @@ const DataTable = ({
           navigate("/login");
         } else {
           if (retryCount < 3) {
+            console.log(`Retry attempt ${retryCount + 1} of 3`);
             await delay(1000); // Tunggu 1 detik sebelum retry
             return fetchData(retryCount + 1);
           } else {
@@ -83,6 +95,7 @@ const DataTable = ({
     } catch (err) {
       console.error("Error fetching data:", err);
       if (retryCount < 3) {
+        console.log(`Retry attempt ${retryCount + 1} of 3`);
         await delay(1000); // Tunggu 1 detik sebelum retry
         return fetchData(retryCount + 1);
       } else {
@@ -261,6 +274,14 @@ const DataTable = ({
               <div
                 key={item.id}
                 className="group bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-blue-100 transform hover:-translate-y-1"
+                onClick={() => {
+                  if (title === "Daftar Kelas") {
+                    navigate(`/kelas/${item.id}`);
+                  }
+                }}
+                style={{
+                  cursor: title === "Daftar Kelas" ? "pointer" : "default",
+                }}
               >
                 <div className="p-6">
                   {fields.map((field) => (
@@ -273,13 +294,19 @@ const DataTable = ({
                 </div>
                 <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 flex justify-end space-x-3 border-t border-gray-100">
                   <button
-                    onClick={() => setEditingItem(item)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingItem(item);
+                    }}
                     className="px-4 py-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors duration-200 font-medium"
                   >
                     Edit
                   </button>
                   <button
-                    onClick={() => handleDelete(item.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(item.id);
+                    }}
                     className="px-4 py-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors duration-200 font-medium"
                   >
                     Hapus

@@ -250,6 +250,19 @@ export const api = {
     }
   },
 
+  getKelasById: async (id) => {
+    try {
+      const response = await fetch(`${BASE_URL}/kelas/get-kelas/${id}`, {
+        method: "GET",
+        headers: getAuthHeader(),
+      });
+      return handleResponse(response);
+    } catch (error) {
+      console.error("Error fetching kelas by id:", error);
+      throw error;
+    }
+  },
+
   addKelas: async (data) => {
     try {
       const response = await fetch(`${BASE_URL}/kelas/add-kelas`, {
@@ -398,9 +411,9 @@ export const api = {
     try {
       const soalData = {
         question: data.question,
-        options_json: JSON.stringify(data.options),
+        options_json: data.options_json || JSON.stringify(data.options),
         correct_answer: data.correct_answer,
-        kuis_id: data.kuis_id,
+        kuis_id: parseInt(data.kuis_id),
       };
       console.log("Sending data to addSoal:", soalData);
 
@@ -422,18 +435,18 @@ export const api = {
         question: data.question,
         options_json: JSON.stringify(data.options),
         correct_answer: data.correct_answer,
-        kuis_id: data.kuis_id,
+        kuis_id: parseInt(data.kuis_id),
       };
-      console.log("Sending data to updateSoal:", { id, data: soalData });
+      console.log("Sending data to updateSoal:", soalData);
 
       const response = await fetch(`${BASE_URL}/soal/update-soal/${id}`, {
         method: "PATCH",
         headers: getAuthHeader(),
         body: JSON.stringify(soalData),
       });
-      return handleResponse(response);
+      return await handleResponse(response);
     } catch (error) {
-      console.error("Error updating soal:", error);
+      console.error("Error in updateSoal:", error);
       throw error;
     }
   },
@@ -448,6 +461,39 @@ export const api = {
       return handleResponse(response);
     } catch (error) {
       console.error("Error deleting soal:", error);
+      throw error;
+    }
+  },
+
+  // Hasil Kuis
+  submitJawaban: async (kuisId, answers) => {
+    try {
+      const formattedAnswers = answers.map((answer) => ({
+        soal_id: parseInt(answer.soal_id),
+        selected_answer: answer.selected_answer,
+      }));
+
+      console.log("Mengirim jawaban:", {
+        kuis_id: parseInt(kuisId),
+        answers: formattedAnswers,
+      });
+
+      const response = await fetch(`${BASE_URL}/hasil-kuis/submit-jawaban`, {
+        method: "POST",
+        headers: getAuthHeader(),
+        body: JSON.stringify({
+          kuis_id: parseInt(kuisId),
+          answers: formattedAnswers,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Gagal mengirim jawaban");
+      }
+      return data;
+    } catch (error) {
+      console.error("Error dalam submitJawaban:", error);
       throw error;
     }
   },

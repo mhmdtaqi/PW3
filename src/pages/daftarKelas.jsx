@@ -10,17 +10,36 @@ const DaftarKelas = () => {
 
   // Fungsi untuk mentransformasi data
   const transformData = (data) => {
-    console.log("Data sebelum transformasi:", data);
-    if (!data || !data.data) {
-      console.error("Data tidak valid:", data);
+    console.log(
+      "Data sebelum transformasi (raw):",
+      JSON.stringify(data, null, 2)
+    );
+    console.log("Tipe data:", typeof data);
+    console.log("Apakah array:", Array.isArray(data));
+
+    if (!data) {
+      console.error("Data kosong");
       return [];
     }
 
-    const transformed = data.data.map((item) => ({
-      id: item.ID || item.id || item._id,
-      name: item.Name || item.name,
-      description: item.Description || item.description,
-    }));
+    if (!Array.isArray(data)) {
+      console.error("Data bukan array:", data);
+      return [];
+    }
+
+    const transformed = data
+      .filter((item) => {
+        console.log("Checking item:", JSON.stringify(item, null, 2));
+        return item && (item.Name || item.name);
+      })
+      .map((item) => {
+        console.log("Mapping item:", item);
+        return {
+          id: item.ID || item.id,
+          name: item.Name || item.name || "",
+          description: item.Description || item.description || "",
+        };
+      });
 
     console.log("Data setelah transformasi:", transformed);
     return transformed;
