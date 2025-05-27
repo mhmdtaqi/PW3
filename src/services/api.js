@@ -1,4 +1,5 @@
-const BASE_URL = "https://brainquiz0.up.railway.app";
+const BASE_URL =
+  import.meta.env.VITE_API_URL || "https://brainquiz0.up.railway.app";
 
 const getAuthHeader = () => {
   const token = localStorage.getItem("token");
