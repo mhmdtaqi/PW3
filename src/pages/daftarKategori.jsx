@@ -2,11 +2,26 @@ import React from "react";
 import DataTable from "../components/DataTable";
 import { api } from "../services/api";
 
+// Icon component for Kategori
+const KategoriIcon = ({ className }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+  </svg>
+);
+
 const DaftarKategori = () => {
   const fields = [
-    { name: "name", label: "Nama Kategori" },
-    { name: "description", label: "Deskripsi", type: "textarea" },
+    { name: "name", label: "Nama Kategori", required: true },
+    { name: "description", label: "Deskripsi", type: "textarea", required: true },
   ];
+
+  // Page configuration for styling and behavior
+  const pageConfig = {
+    icon: KategoriIcon,
+    gradient: "from-blue-500 to-purple-600",
+    description: "Kelola kategori pembelajaran untuk mengorganisir materi",
+    stats: true
+  };
 
   // Fungsi untuk mentransformasi data
   const transformData = (data) => {
@@ -32,20 +47,21 @@ const DaftarKategori = () => {
         throw new Error(response.message || "Gagal menambahkan kategori");
       }
       alert("Kategori berhasil ditambahkan");
+      return true;
     } catch (error) {
       console.error("Error saat menambahkan kategori:", error);
       throw error;
     }
   };
 
-  const handleEdit = async (data) => {
+  const handleEdit = async (id, data) => {
     try {
-      if (!data.id) {
+      if (!id) {
         throw new Error("ID kategori tidak ditemukan");
       }
 
-      console.log("Data yang akan diupdate:", data);
-      const response = await api.updateKategori(data.id, {
+      console.log("Data yang akan diupdate:", { id, data });
+      const response = await api.updateKategori(id, {
         name: data.name,
         description: data.description,
       });
@@ -55,6 +71,7 @@ const DaftarKategori = () => {
         throw new Error(response.message || "Gagal mengupdate kategori");
       }
       alert("Kategori berhasil diperbarui");
+      return true;
     } catch (error) {
       console.error("Error saat mengupdate kategori:", error);
       throw error;
@@ -75,6 +92,7 @@ const DaftarKategori = () => {
         throw new Error(response.message || "Gagal menghapus kategori");
       }
       alert("Kategori berhasil dihapus");
+      return true;
     } catch (error) {
       console.error("Error saat menghapus kategori:", error);
       throw error;
@@ -90,6 +108,7 @@ const DaftarKategori = () => {
       onEdit={handleEdit}
       onDelete={handleDelete}
       transformData={transformData}
+      pageConfig={pageConfig}
     />
   );
 };

@@ -2,11 +2,26 @@ import React from "react";
 import DataTable from "../components/DataTable";
 import { api } from "../services/api";
 
+// Icon component for Tingkatan
+const TingkatanIcon = ({ className }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+  </svg>
+);
+
 const DaftarTingkatan = () => {
   const fields = [
-    { name: "name", label: "Nama Tingkatan" },
-    { name: "description", label: "Deskripsi", type: "textarea" },
+    { name: "name", label: "Nama Tingkatan", required: true },
+    { name: "description", label: "Deskripsi", type: "textarea", required: true },
   ];
+
+  // Page configuration for styling and behavior
+  const pageConfig = {
+    icon: TingkatanIcon,
+    gradient: "from-green-500 to-teal-600",
+    description: "Kelola tingkatan kesulitan pembelajaran dengan mudah",
+    stats: true
+  };
 
   // Fungsi untuk mentransformasi data
   const transformData = (data) => {
@@ -32,20 +47,21 @@ const DaftarTingkatan = () => {
         throw new Error(response.message || "Gagal menambahkan tingkatan");
       }
       alert("Tingkatan berhasil ditambahkan");
+      return true;
     } catch (error) {
       console.error("Error saat menambahkan tingkatan:", error);
       throw error;
     }
   };
 
-  const handleEdit = async (data) => {
+  const handleEdit = async (id, data) => {
     try {
-      if (!data.id) {
+      if (!id) {
         throw new Error("ID tingkatan tidak ditemukan");
       }
 
-      console.log("Data yang akan diupdate:", data);
-      const response = await api.updateTingkatan(data.id, {
+      console.log("Data yang akan diupdate:", { id, data });
+      const response = await api.updateTingkatan(id, {
         name: data.name,
         description: data.description,
       });
@@ -55,6 +71,7 @@ const DaftarTingkatan = () => {
         throw new Error(response.message || "Gagal mengupdate tingkatan");
       }
       alert("Tingkatan berhasil diperbarui");
+      return true;
     } catch (error) {
       console.error("Error saat mengupdate tingkatan:", error);
       throw error;
@@ -75,6 +92,7 @@ const DaftarTingkatan = () => {
         throw new Error(response.message || "Gagal menghapus tingkatan");
       }
       alert("Tingkatan berhasil dihapus");
+      return true;
     } catch (error) {
       console.error("Error saat menghapus tingkatan:", error);
       throw error;
@@ -90,6 +108,7 @@ const DaftarTingkatan = () => {
       onEdit={handleEdit}
       onDelete={handleDelete}
       transformData={transformData}
+      pageConfig={pageConfig}
     />
   );
 };
