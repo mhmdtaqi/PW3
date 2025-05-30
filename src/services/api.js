@@ -324,10 +324,10 @@ export const api = {
       const kuisData = {
         title: data.title,
         description: data.description,
-        kategori_id: data.kategori_id,
-        tingkatan_id: data.tingkatan_id,
-        kelas_id: data.kelas_id,
-        pendidikan_id: data.pendidikan_id,
+        kategori_id: parseInt(data.kategori_id) || 0,
+        tingkatan_id: parseInt(data.tingkatan_id) || 0,
+        kelas_id: parseInt(data.kelas_id) || 0,
+        pendidikan_id: parseInt(data.pendidikan_id) || 0,
       };
       console.log("Sending data to addKuis:", kuisData);
 
@@ -348,10 +348,10 @@ export const api = {
       const kuisData = {
         title: data.title,
         description: data.description,
-        kategori_id: data.kategori_id,
-        tingkatan_id: data.tingkatan_id,
-        kelas_id: data.kelas_id,
-        pendidikan_id: data.pendidikan_id,
+        kategori_id: parseInt(data.kategori_id) || 0,
+        tingkatan_id: parseInt(data.tingkatan_id) || 0,
+        kelas_id: parseInt(data.kelas_id) || 0,
+        pendidikan_id: parseInt(data.pendidikan_id) || 0,
       };
       console.log("Sending data to updateKuis:", { id, data: kuisData });
 

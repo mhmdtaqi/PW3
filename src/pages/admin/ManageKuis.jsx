@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { api } from "../../services/api";
 
@@ -8,8 +8,7 @@ const ManageKuis = () => {
   const searchParams = new URLSearchParams(location.search);
   const kelasId = searchParams.get("kelas_id");
 
-  const [kuisList, setKuisList] = useState([]);
-  const [selectedKuis, setSelectedKuis] = useState(null);
+  const [_kuisList, setKuisList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [kategoriList, setKategoriList] = useState([]);
@@ -43,9 +42,9 @@ const ManageKuis = () => {
       return;
     }
     fetchData();
-  }, [kelasId, navigate]);
+  }, [kelasId, navigate, fetchData]);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       const [kuisRes, kategoriRes, tingkatanRes, kelasRes, pendidikanRes] =
@@ -67,7 +66,7 @@ const ManageKuis = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [kelasId]);
 
   const handleAddSoal = () => {
     setFormData((prev) => ({

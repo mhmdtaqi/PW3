@@ -129,11 +129,11 @@ const DetailKelas = () => {
         })
       );
 
-      console.log("Mengirim jawaban:", userAnswers);
+      console.log("Mengirim jawaban:", formattedAnswers);
 
       const response = await api.submitJawaban(
         selectedKuis.ID || selectedKuis.id,
-        userAnswers
+        formattedAnswers
       );
 
       if (!response.success) {
