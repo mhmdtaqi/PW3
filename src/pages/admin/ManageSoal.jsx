@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { api } from "../../services/api";
 
@@ -30,9 +30,9 @@ const ManageSoal = () => {
       return;
     }
     fetchSoal();
-  }, [kuisId]);
+  }, [kuisId, navigate, fetchSoal]);
 
-  const fetchSoal = async () => {
+  const fetchSoal = useCallback(async () => {
     try {
       setLoading(true);
       const response = await api.getSoalByKuisID(kuisId);
@@ -65,7 +65,7 @@ const ManageSoal = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [kuisId]);
 
   const handleEdit = (soal) => {
     setSelectedSoal(soal);
