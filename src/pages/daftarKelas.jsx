@@ -63,12 +63,14 @@ const DaftarKelas = () => {
 
   const handleEdit = async (id, data) => {
     try {
-      if (!id) {
+      const itemId = id || data?.id || data?.ID;
+      if (!itemId) {
         throw new Error("ID kelas tidak ditemukan");
       }
 
-      console.log("Data yang akan diupdate:", { id, data });
-      const response = await api.updateKelas(id, {
+      console.log("ID yang akan diupdate:", itemId);
+      console.log("Data yang akan diupdate:", data);
+      const response = await api.updateKelas(itemId, {
         name: data.name,
         description: data.description,
       });
@@ -77,7 +79,7 @@ const DaftarKelas = () => {
       if (!response.success) {
         throw new Error(response.message || "Gagal mengupdate kelas");
       }
-      alert("Kelas berhasil diperbarui");
+      return true;
     } catch (error) {
       console.error("Error saat mengupdate kelas:", error);
       throw error;
@@ -86,18 +88,19 @@ const DaftarKelas = () => {
 
   const handleDelete = async (id) => {
     try {
-      if (!id) {
+      const itemId = typeof id === 'object' ? (id?.id || id?.ID) : id;
+      if (!itemId) {
         throw new Error("ID kelas tidak ditemukan");
       }
 
-      console.log("ID yang akan dihapus:", id);
-      const response = await api.deleteKelas(id);
+      console.log("ID yang akan dihapus:", itemId);
+      const response = await api.deleteKelas(itemId);
       console.log("Response dari server:", response);
 
       if (!response.success) {
         throw new Error(response.message || "Gagal menghapus kelas");
       }
-      alert("Kelas berhasil dihapus");
+      return true;
     } catch (error) {
       console.error("Error saat menghapus kelas:", error);
       throw error;

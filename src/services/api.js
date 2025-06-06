@@ -1,38 +1,29 @@
-const BASE_URL =
-  import.meta.env.VITE_API_URL || "https://brainquiz0.up.railway.app";
+ const BASE_URL = import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV ? "/api" : "https://brainquiz0.up.railway.app");
 
 const getAuthHeader = () => {
   const token = localStorage.getItem("token");
-  if (!token) {
-    throw new Error("Token tidak ditemukan");
-  }
-  return {
+  const headers = {
     "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`,
   };
+
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  return headers;
 };
 
 const handleResponse = async (response) => {
   const contentType = response.headers.get("content-type");
   if (!contentType || !contentType.includes("application/json")) {
-    if (response.status === 401) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("role");
-      window.location.href = "/login";
-      throw new Error("Sesi Anda telah berakhir. Silakan login kembali.");
-    }
     throw new Error("Terjadi kesalahan pada server");
   }
 
   const data = await response.json();
+
   if (!response.ok) {
-    if (response.status === 401) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("role");
-      window.location.href = "/login";
-      throw new Error("Sesi Anda telah berakhir. Silakan login kembali.");
-    }
-    throw new Error(data.message || "Terjadi kesalahan pada server");
+    throw new Error(data.message || `Server error: ${response.status}`);
   }
   return data;
 };
@@ -44,6 +35,7 @@ export const api = {
       const response = await fetch(`${BASE_URL}/kategori/get-kategori`, {
         method: "GET",
         headers: getAuthHeader(),
+        credentials: 'include',
       });
       return handleResponse(response);
     } catch (error) {
@@ -63,6 +55,7 @@ export const api = {
       const response = await fetch(`${BASE_URL}/kategori/add-kategori`, {
         method: "POST",
         headers: getAuthHeader(),
+        credentials: 'include',
         body: JSON.stringify(kategoriData),
       });
       return handleResponse(response);
@@ -88,6 +81,7 @@ export const api = {
         {
           method: "PATCH",
           headers: getAuthHeader(),
+          credentials: 'include',
           body: JSON.stringify(kategoriData),
         }
       );
@@ -106,6 +100,7 @@ export const api = {
         {
           method: "DELETE",
           headers: getAuthHeader(),
+          credentials: 'include',
         }
       );
       return handleResponse(response);
@@ -121,6 +116,7 @@ export const api = {
       const response = await fetch(`${BASE_URL}/tingkatan/get-tingkatan`, {
         method: "GET",
         headers: getAuthHeader(),
+        credentials: 'include',
       });
       return handleResponse(response);
     } catch (error) {
@@ -134,6 +130,7 @@ export const api = {
       const response = await fetch(`${BASE_URL}/tingkatan/add-tingkatan`, {
         method: "POST",
         headers: getAuthHeader(),
+        credentials: 'include',
         body: JSON.stringify(data),
       });
       return handleResponse(response);
@@ -150,6 +147,7 @@ export const api = {
         {
           method: "PATCH",
           headers: getAuthHeader(),
+          credentials: 'include',
           body: JSON.stringify(data),
         }
       );
@@ -167,6 +165,7 @@ export const api = {
         {
           method: "DELETE",
           headers: getAuthHeader(),
+          credentials: 'include',
         }
       );
       return handleResponse(response);
@@ -182,6 +181,7 @@ export const api = {
       const response = await fetch(`${BASE_URL}/pendidikan/get-pendidikan`, {
         method: "GET",
         headers: getAuthHeader(),
+        credentials: 'include',
       });
       return handleResponse(response);
     } catch (error) {
@@ -195,6 +195,7 @@ export const api = {
       const response = await fetch(`${BASE_URL}/pendidikan/add-pendidikan`, {
         method: "POST",
         headers: getAuthHeader(),
+        credentials: 'include',
         body: JSON.stringify(data),
       });
       return handleResponse(response);
@@ -211,6 +212,7 @@ export const api = {
         {
           method: "PATCH",
           headers: getAuthHeader(),
+          credentials: 'include',
           body: JSON.stringify(data),
         }
       );
@@ -228,6 +230,7 @@ export const api = {
         {
           method: "DELETE",
           headers: getAuthHeader(),
+          credentials: 'include',
         }
       );
       return handleResponse(response);
@@ -243,6 +246,7 @@ export const api = {
       const response = await fetch(`${BASE_URL}/kelas/get-kelas`, {
         method: "GET",
         headers: getAuthHeader(),
+        credentials: 'include',
       });
       return handleResponse(response);
     } catch (error) {
@@ -256,6 +260,7 @@ export const api = {
       const response = await fetch(`${BASE_URL}/kelas/get-kelas/${id}`, {
         method: "GET",
         headers: getAuthHeader(),
+        credentials: 'include',
       });
       return handleResponse(response);
     } catch (error) {
@@ -269,6 +274,7 @@ export const api = {
       const response = await fetch(`${BASE_URL}/kelas/add-kelas`, {
         method: "POST",
         headers: getAuthHeader(),
+        credentials: 'include',
         body: JSON.stringify(data),
       });
       return handleResponse(response);
@@ -283,6 +289,7 @@ export const api = {
       const response = await fetch(`${BASE_URL}/kelas/update-kelas/${id}`, {
         method: "PATCH",
         headers: getAuthHeader(),
+        credentials: 'include',
         body: JSON.stringify(data),
       });
       return handleResponse(response);
@@ -297,6 +304,7 @@ export const api = {
       const response = await fetch(`${BASE_URL}/kelas/delete-kelas/${id}`, {
         method: "DELETE",
         headers: getAuthHeader(),
+        credentials: 'include',
       });
       return handleResponse(response);
     } catch (error) {
@@ -311,10 +319,28 @@ export const api = {
       const response = await fetch(`${BASE_URL}/kuis/get-kuis`, {
         method: "GET",
         headers: getAuthHeader(),
+        credentials: 'include',
       });
       return handleResponse(response);
     } catch (error) {
       console.error("Error fetching kuis:", error);
+      throw error;
+    }
+  },
+
+  getKuisByKelasId: async (kelasId) => {
+    try {
+      const response = await fetch(
+        `${BASE_URL}/kuis/filter-kuis?kelas_id=${kelasId}`,
+        {
+          method: "GET",
+          headers: getAuthHeader(),
+          credentials: 'include',
+        }
+      );
+      return handleResponse(response);
+    } catch (error) {
+      console.error("Error fetching kuis by kelas id:", error);
       throw error;
     }
   },
@@ -334,6 +360,7 @@ export const api = {
       const response = await fetch(`${BASE_URL}/kuis/add-kuis`, {
         method: "POST",
         headers: getAuthHeader(),
+        credentials: 'include',
         body: JSON.stringify(kuisData),
       });
       return handleResponse(response);
@@ -358,6 +385,7 @@ export const api = {
       const response = await fetch(`${BASE_URL}/kuis/update-kuis/${id}`, {
         method: "PATCH",
         headers: getAuthHeader(),
+        credentials: 'include',
         body: JSON.stringify(kuisData),
       });
       return handleResponse(response);
@@ -373,6 +401,7 @@ export const api = {
       const response = await fetch(`${BASE_URL}/kuis/delete-kuis/${id}`, {
         method: "DELETE",
         headers: getAuthHeader(),
+        credentials: 'include',
       });
       return handleResponse(response);
     } catch (error) {
@@ -387,6 +416,7 @@ export const api = {
       const response = await fetch(`${BASE_URL}/soal/get-soal`, {
         method: "GET",
         headers: getAuthHeader(),
+        credentials: 'include',
       });
       return handleResponse(response);
     } catch (error) {
@@ -400,6 +430,7 @@ export const api = {
       const response = await fetch(`${BASE_URL}/soal/get-soal/${kuisId}`, {
         method: "GET",
         headers: getAuthHeader(),
+        credentials: 'include',
       });
       return handleResponse(response);
     } catch (error) {
@@ -410,9 +441,21 @@ export const api = {
 
   addSoal: async (data) => {
     try {
+      // Ensure options is properly formatted as JSON string
+      let optionsJson;
+      if (typeof data.options === 'string') {
+        optionsJson = data.options;
+      } else if (data.options && typeof data.options === 'object') {
+        optionsJson = JSON.stringify(data.options);
+      } else if (data.options_json) {
+        optionsJson = data.options_json;
+      } else {
+        throw new Error('Options data is required');
+      }
+
       const soalData = {
         question: data.question,
-        options_json: data.options_json || JSON.stringify(data.options),
+        options_json: optionsJson,  // This will be mapped to Options field in backend
         correct_answer: data.correct_answer,
         kuis_id: parseInt(data.kuis_id),
       };
@@ -421,6 +464,7 @@ export const api = {
       const response = await fetch(`${BASE_URL}/soal/add-soal`, {
         method: "POST",
         headers: getAuthHeader(),
+        credentials: 'include',
         body: JSON.stringify(soalData),
       });
       return handleResponse(response);
@@ -432,9 +476,21 @@ export const api = {
 
   updateSoal: async (id, data) => {
     try {
+      // Ensure options is properly formatted as JSON string
+      let optionsJson;
+      if (typeof data.options === 'string') {
+        optionsJson = data.options;
+      } else if (data.options && typeof data.options === 'object') {
+        optionsJson = JSON.stringify(data.options);
+      } else if (data.options_json) {
+        optionsJson = data.options_json;
+      } else {
+        throw new Error('Options data is required');
+      }
+
       const soalData = {
         question: data.question,
-        options_json: JSON.stringify(data.options),
+        options_json: optionsJson,
         correct_answer: data.correct_answer,
         kuis_id: parseInt(data.kuis_id),
       };
@@ -443,6 +499,7 @@ export const api = {
       const response = await fetch(`${BASE_URL}/soal/update-soal/${id}`, {
         method: "PATCH",
         headers: getAuthHeader(),
+        credentials: 'include',
         body: JSON.stringify(soalData),
       });
       return await handleResponse(response);
@@ -458,6 +515,7 @@ export const api = {
       const response = await fetch(`${BASE_URL}/soal/delete-soal/${id}`, {
         method: "DELETE",
         headers: getAuthHeader(),
+        credentials: 'include',
       });
       return handleResponse(response);
     } catch (error) {
@@ -467,25 +525,22 @@ export const api = {
   },
 
   // Hasil Kuis
-  submitJawaban: async (kuisId, answers) => {
+  submitJawaban: async (answers) => {
     try {
+      // Format answers according to backend SoalAnswer model
       const formattedAnswers = answers.map((answer) => ({
-        soal_id: parseInt(answer.soal_id),
-        selected_answer: answer.selected_answer,
+        Soal_id: parseInt(answer.soal_id),      // Backend expects Soal_id
+        Answer: answer.selected_answer,         // Backend expects Answer
+        User_id: parseInt(answer.user_id),      // Backend expects User_id
       }));
 
-      console.log("Mengirim jawaban:", {
-        kuis_id: parseInt(kuisId),
-        answers: formattedAnswers,
-      });
+      console.log("Mengirim jawaban:", formattedAnswers);
 
       const response = await fetch(`${BASE_URL}/hasil-kuis/submit-jawaban`, {
         method: "POST",
         headers: getAuthHeader(),
-        body: JSON.stringify({
-          kuis_id: parseInt(kuisId),
-          answers: formattedAnswers,
-        }),
+        credentials: 'include',
+        body: JSON.stringify(formattedAnswers),  // Send array directly, not wrapped in object
       });
 
       const data = await response.json();

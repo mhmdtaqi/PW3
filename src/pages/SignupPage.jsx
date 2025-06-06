@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Layout from "../components/Layout";
 import Button from "../components/UI/Button";
 import Input from "../components/UI/Input";
 import Select from "../components/UI/Select";
@@ -11,121 +10,171 @@ const SignupPage = () => {
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSignup = async (e) => {
     e.preventDefault();
     setError("");
+    setIsLoading(true);
 
     // Validasi role
     if (
       !role ||
-      (role !== "admin" && role !== "teacher" && role !== "student")
+      (role !== "teacher" && role !== "student")
     ) {
-      setError("Role tidak valid. Pilih role: admin, teacher, atau student");
+      setError("Peran tidak valid. Silakan pilih peran: Guru atau Siswa");
+      setIsLoading(false);
       return;
     }
 
     try {
-      const res = await fetch(
-        "https://brainquiz0.up.railway.app/user/register",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, email, password, role }),
-        }
-      );
+      const registerUrl = import.meta.env.DEV ? "/api/user/register" : "https://brainquiz0.up.railway.app/user/register";
+      const res = await fetch(registerUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: 'include',
+        body: JSON.stringify({ name, email, password, role }),
+      });
       const data = await res.json();
       if (res.ok) {
-        alert("Pendaftaran berhasil");
-        navigate("/login");
+        // Success notification
+        const successDiv = document.createElement('div');
+        successDiv.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in';
+        successDiv.innerHTML = '✅ Pendaftaran berhasil! Mengarahkan ke halaman login...';
+        document.body.appendChild(successDiv);
+
+        setTimeout(() => {
+          document.body.removeChild(successDiv);
+          navigate("/login");
+        }, 2000);
       } else {
-        setError(data.message || "Pendaftaran gagal");
+        setError(data.message || "Pendaftaran gagal. Silakan coba lagi.");
       }
     } catch (err) {
-      setError("Terjadi kesalahan");
+      setError("Terjadi kesalahan jaringan. Silakan periksa koneksi internet Anda.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <Layout>
-      <div className="text-center mb-8">
-        <h2 className="text-4xl font-bold text-gray-800 mb-2">
-          Create Account
-        </h2>
-        <p className="text-gray-600">Bergabunglah dengan kami hari ini</p>
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        {/* Header */}
+        <div className="text-center animate-fade-in">
+          <div className="flex justify-center mb-6">
+            <div className="w-16 h-16 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg">
+              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+              </svg>
+            </div>
+          </div>
+          <h2 className="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-2">
+            Bergabung Sekarang! 🚀
+          </h2>
+          <p className="text-gray-600 text-lg">Daftar untuk memulai perjalanan belajar yang menyenangkan</p>
+        </div>
+
+        {/* Signup Form */}
+        <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl p-8 border border-white/20 animate-slide-up">
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6 animate-fade-in flex items-center space-x-2">
+              <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>{error}</span>
+            </div>
+          )}
+
+          <form className="space-y-6" onSubmit={handleSignup}>
+            <div className="space-y-4">
+              <Input
+                label="Nama Lengkap"
+                id="name"
+                type="text"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Masukkan nama lengkap Anda"
+              />
+
+              <Input
+                label="Alamat Email"
+                id="email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Masukkan alamat email Anda"
+              />
+
+              <Input
+                label="Kata Sandi"
+                id="password"
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Buat kata sandi yang kuat"
+              />
+
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Peran Akun
+                </label>
+                <select
+                  id="role"
+                  required
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                  className="input-modern"
+                >
+                  <option value="">Pilih peran Anda</option>
+                  <option value="student">👨‍🎓 Siswa - Untuk belajar dan mengikuti kuis</option>
+                  <option value="teacher">👨‍🏫 Guru - Untuk mengajar dan membuat konten</option>
+                </select>
+              </div>
+            </div>
+
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? (
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="spinner w-5 h-5"></div>
+                  <span>Mendaftarkan Akun...</span>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center space-x-2">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                  </svg>
+                  <span>Daftar Sekarang</span>
+                </div>
+              )}
+            </Button>
+
+            <div className="text-center">
+              <p className="text-sm text-gray-600">
+                Sudah punya akun?{" "}
+                <a
+                  href="/login"
+                  className="font-semibold text-emerald-600 hover:text-teal-600 transition-colors duration-200"
+                >
+                  Masuk di sini
+                </a>
+              </p>
+            </div>
+          </form>
+        </div>
+
+        {/* Footer */}
+        <div className="text-center animate-fade-in">
+          <p className="text-sm text-gray-500">
+            Dengan mendaftar, Anda menyetujui syarat dan ketentuan kami.
+          </p>
+        </div>
       </div>
-
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6 animate-fade-in">
-          {error}
-        </div>
-      )}
-
-      <form className="space-y-6" onSubmit={handleSignup}>
-        <div className="space-y-4">
-          <Input
-            label="Nama Lengkap"
-            id="name"
-            type="text"
-            required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Masukkan nama lengkap"
-          />
-
-          <Input
-            label="Email"
-            id="email"
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Masukkan email"
-          />
-
-          <Input
-            label="Password"
-            id="password"
-            type="password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Masukkan password"
-          />
-
-          <Select
-            label="Pilih Role"
-            id="role"
-            required
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-          >
-            <option value="" className="bg-white text-gray-900">
-              Pilih role
-            </option>
-            <option value="teacher" className="bg-white text-gray-900">
-              Guru
-            </option>
-            <option value="student" className="bg-white text-gray-900">
-              Siswa
-            </option>
-          </Select>
-        </div>
-
-        <Button type="submit">Daftar</Button>
-
-        <p className="text-center text-sm text-gray-600">
-          Sudah punya akun?{" "}
-          <a
-            href="/login"
-            className="font-medium text-blue-600 hover:text-teal-600 transition-colors duration-200"
-          >
-            Login di sini
-          </a>
-        </p>
-      </form>
-    </Layout>
+    </div>
   );
 };
 

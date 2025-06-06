@@ -38,14 +38,16 @@ const DaftarKategori = () => {
     }
   };
 
-  const handleEdit = async (data) => {
+  const handleEdit = async (id, data) => {
     try {
-      if (!data.id) {
+      const itemId = id || data?.id || data?.ID;
+      if (!itemId) {
         throw new Error("ID kategori tidak ditemukan");
       }
 
+      console.log("ID yang akan diupdate:", itemId);
       console.log("Data yang akan diupdate:", data);
-      const response = await api.updateKategori(data.id, {
+      const response = await api.updateKategori(itemId, {
         name: data.name,
         description: data.description,
       });
@@ -54,7 +56,7 @@ const DaftarKategori = () => {
       if (!response.success) {
         throw new Error(response.message || "Gagal mengupdate kategori");
       }
-      alert("Kategori berhasil diperbarui");
+      return true; // Return success instead of alert
     } catch (error) {
       console.error("Error saat mengupdate kategori:", error);
       throw error;
@@ -63,18 +65,19 @@ const DaftarKategori = () => {
 
   const handleDelete = async (id) => {
     try {
-      if (!id) {
+      const itemId = typeof id === 'object' ? (id?.id || id?.ID) : id;
+      if (!itemId) {
         throw new Error("ID kategori tidak ditemukan");
       }
 
-      console.log("ID yang akan dihapus:", id);
-      const response = await api.deleteKategori(id);
+      console.log("ID yang akan dihapus:", itemId);
+      const response = await api.deleteKategori(itemId);
       console.log("Response dari server:", response);
 
       if (!response.success) {
         throw new Error(response.message || "Gagal menghapus kategori");
       }
-      alert("Kategori berhasil dihapus");
+      return true; // Return success instead of alert
     } catch (error) {
       console.error("Error saat menghapus kategori:", error);
       throw error;

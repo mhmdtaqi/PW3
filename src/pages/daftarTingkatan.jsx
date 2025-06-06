@@ -38,14 +38,16 @@ const DaftarTingkatan = () => {
     }
   };
 
-  const handleEdit = async (data) => {
+  const handleEdit = async (id, data) => {
     try {
-      if (!data.id) {
+      const itemId = id || data?.id || data?.ID;
+      if (!itemId) {
         throw new Error("ID tingkatan tidak ditemukan");
       }
 
+      console.log("ID yang akan diupdate:", itemId);
       console.log("Data yang akan diupdate:", data);
-      const response = await api.updateTingkatan(data.id, {
+      const response = await api.updateTingkatan(itemId, {
         name: data.name,
         description: data.description,
       });
@@ -54,7 +56,7 @@ const DaftarTingkatan = () => {
       if (!response.success) {
         throw new Error(response.message || "Gagal mengupdate tingkatan");
       }
-      alert("Tingkatan berhasil diperbarui");
+      return true;
     } catch (error) {
       console.error("Error saat mengupdate tingkatan:", error);
       throw error;
@@ -63,18 +65,19 @@ const DaftarTingkatan = () => {
 
   const handleDelete = async (id) => {
     try {
-      if (!id) {
+      const itemId = typeof id === 'object' ? (id?.id || id?.ID) : id;
+      if (!itemId) {
         throw new Error("ID tingkatan tidak ditemukan");
       }
 
-      console.log("ID yang akan dihapus:", id);
-      const response = await api.deleteTingkatan(id);
+      console.log("ID yang akan dihapus:", itemId);
+      const response = await api.deleteTingkatan(itemId);
       console.log("Response dari server:", response);
 
       if (!response.success) {
         throw new Error(response.message || "Gagal menghapus tingkatan");
       }
-      alert("Tingkatan berhasil dihapus");
+      return true;
     } catch (error) {
       console.error("Error saat menghapus tingkatan:", error);
       throw error;
