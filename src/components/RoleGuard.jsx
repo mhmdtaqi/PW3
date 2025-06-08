@@ -1,13 +1,15 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { getUserRole, hasPermission } from '../utils/roleUtils';
+import { useAuth, useRole } from '../hooks/useAuth';
+import { hasPermission } from '../utils/roleUtils';
 
 /**
  * Route Guard Component - Protects routes based on user role
  */
 const RoleGuard = ({ children, requiredRole, requiredPermission, roles = [], fallbackPath = '/dashboard' }) => {
   const location = useLocation();
-  const userRole = getUserRole();
+  const { user } = useAuth();
+  const { userRole } = useRole();
 
   console.log('🛡️ RoleGuard check:', {
     userRole,

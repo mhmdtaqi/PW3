@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { getUserRole } from '../utils/roleUtils';
+import { useAuth, useRole } from '../hooks/useAuth';
 
 const SideNavbar = ({ onSidebarToggle }) => {
   const location = useLocation();
@@ -25,16 +25,11 @@ const SideNavbar = ({ onSidebarToggle }) => {
     }
   }, [isCollapsed, isMobileMenuOpen, onSidebarToggle]);
   
-  // Get user info from localStorage
-  const userName = localStorage.getItem('userName') || 'User';
+  // Get user info from useAuth hook
+  const { user, logout: authLogout } = useAuth();
+  const { userRole } = useRole();
 
-  let userRole = 'student';
-
-  try {
-    userRole = getUserRole();
-  } catch (error) {
-    userRole = 'student';
-  }
+  const userName = user?.userName || localStorage.getItem('userName') || 'User';
 
   const handleLogout = async () => {
     try {
@@ -54,11 +49,8 @@ const SideNavbar = ({ onSidebarToggle }) => {
     } catch (error) {
       console.error('Error during logout:', error);
     } finally {
-      // Clear localStorage
-      localStorage.removeItem('token');
-      localStorage.removeItem('userName');
-      localStorage.removeItem('role');
-      localStorage.removeItem('userId');
+      // Use auth logout function
+      authLogout();
       navigate('/login');
     }
   };

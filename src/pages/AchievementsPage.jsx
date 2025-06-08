@@ -75,14 +75,26 @@ const AchievementsPage = () => {
       accuracy: 0,
       categoriesCompleted: new Set(),
       perfectScores: 0,
-      streak: Math.floor(Math.random() * 10) + 1
+      streak: 0,
+      lastQuizDate: null,
+      quizDates: []
     };
 
-    for (const kuis of allKuis) {
+    // Process quizzes sequentially to avoid overwhelming database
+    for (let i = 0; i < allKuis.length; i++) {
+      const kuis = allKuis[i];
+
       try {
+        // Get quiz questions
         const soalRes = await api.getSoalByKuisID(kuis.ID);
         const questionCount = soalRes.success ? soalRes.data.length : 0;
 
+        // Small delay to avoid overwhelming database
+        if (i > 0) {
+          await new Promise(resolve => setTimeout(resolve, 50));
+        }
+
+        // Get quiz result
         const response = await fetch(`${BASE_URL}/hasil-kuis/${userId}/${kuis.ID}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -97,6 +109,7 @@ const AchievementsPage = () => {
 
           const rawScore = result.score || result.Score || 0;
           const correctAnswers = result.correct_answer || result.Correct_Answer || 0;
+          const quizDate = result.created_at || result.CreatedAt || new Date().toISOString();
 
           // Get consistent score info
           const scoreInfo = getConsistentScoreInfo(rawScore, correctAnswers, questionCount);
@@ -106,27 +119,100 @@ const AchievementsPage = () => {
           stats.correctAnswers += correctAnswers;
           stats.totalQuestions += questionCount;
           stats.categoriesCompleted.add(kuis.kategori_id);
+          stats.quizDates.push(new Date(quizDate));
 
           if (scoreInfo.score === 100) {
             stats.perfectScores++;
           }
         }
       } catch (error) {
-        // Continue
+        console.error(`Error processing quiz ${kuis.ID}:`, error);
+        // Continue with next quiz
       }
     }
 
     if (stats.completedQuizzes > 0) {
       stats.averageScore = Math.round(stats.totalScore / stats.completedQuizzes);
-      stats.accuracy = stats.totalQuestions > 0 
+      stats.accuracy = stats.totalQuestions > 0
         ? Math.round((stats.correctAnswers / stats.totalQuestions) * 100)
         : 0;
     }
-    
+
     stats.categoriesCompleted = stats.categoriesCompleted.size;
+
+    // Calculate streak (consecutive days with quiz activity)
+    stats.streak = calculateStreak(stats.quizDates);
 
     setUserStats(stats);
     generateAchievements(stats, allKategori.length);
+  };
+
+  // Calculate consecutive days streak
+  const calculateStreak = (quizDates) => {
+    if (!quizDates || quizDates.length === 0) return 0;
+
+    // Sort dates in descending order (newest first)
+    const sortedDates = quizDates
+      .map(date => new Date(date.toDateString())) // Normalize to date only (no time)
+      .sort((a, b) => b - a);
+
+    // Remove duplicates (same day)
+    const uniqueDates = [...new Set(sortedDates.map(date => date.getTime()))]
+      .map(time => new Date(time));
+
+    if (uniqueDates.length === 0) return 0;
+
+    let streak = 1;
+    const today = new Date(new Date().toDateString());
+
+    // Check if the most recent quiz was today or yesterday
+    const mostRecent = uniqueDates[0];
+    const daysDiff = Math.floor((today - mostRecent) / (1000 * 60 * 60 * 24));
+
+    // If last quiz was more than 1 day ago, streak is broken
+    if (daysDiff > 1) return 0;
+
+    // If last quiz was today, start counting from today
+    // If last quiz was yesterday, start counting from yesterday
+    let currentDate = new Date(mostRecent);
+
+    // Count consecutive days
+    for (let i = 1; i < uniqueDates.length; i++) {
+      const prevDate = new Date(currentDate);
+      prevDate.setDate(prevDate.getDate() - 1);
+
+      if (uniqueDates[i].getTime() === prevDate.getTime()) {
+        streak++;
+        currentDate = uniqueDates[i];
+      } else {
+        break;
+      }
+    }
+
+    return streak;
+  };
+
+  // Check if user completed 5 quizzes in one day
+  const checkSpeedDemon = (quizDates) => {
+    if (!quizDates || quizDates.length < 5) return false;
+
+    const dateGroups = {};
+    quizDates.forEach(date => {
+      const dateStr = date.toDateString();
+      dateGroups[dateStr] = (dateGroups[dateStr] || 0) + 1;
+    });
+
+    return Object.values(dateGroups).some(count => count >= 5);
+  };
+
+  // Check if user completed quiz at night (after 8 PM or before 6 AM)
+  const checkNightOwl = (quizDates) => {
+    if (!quizDates || quizDates.length === 0) return false;
+
+    return quizDates.some(date => {
+      const hour = date.getHours();
+      return hour >= 20 || hour < 6; // 8 PM to 6 AM
+    });
   };
 
   const generateAchievements = (stats, totalCategories) => {
@@ -391,8 +477,8 @@ const AchievementsPage = () => {
         title: 'Iblis Kecepatan',
         description: 'Selesaikan 5 kuis dalam satu hari. Kecepatan luar biasa!',
         icon: '💨',
-        unlocked: stats.completedQuizzes >= 5, // Simplified for demo
-        progress: Math.min(stats.completedQuizzes >= 5 ? 1 : 0, 1),
+        unlocked: checkSpeedDemon(stats.quizDates),
+        progress: checkSpeedDemon(stats.quizDates) ? 1 : 0,
         target: 1,
         category: 'Special',
         points: 150
@@ -402,8 +488,8 @@ const AchievementsPage = () => {
         title: 'Burung Hantu',
         description: 'Selesaikan kuis di malam hari. Belajar tanpa kenal waktu!',
         icon: '🦉',
-        unlocked: stats.completedQuizzes >= 1, // Simplified for demo
-        progress: Math.min(stats.completedQuizzes >= 1 ? 1 : 0, 1),
+        unlocked: checkNightOwl(stats.quizDates),
+        progress: checkNightOwl(stats.quizDates) ? 1 : 0,
         target: 1,
         category: 'Special',
         points: 50
@@ -473,8 +559,8 @@ const AchievementsPage = () => {
         description: 'Selesaikan kuis ke-7 Anda. Tujuh adalah angka keberuntungan!',
         icon: '🍀',
         unlocked: stats.completedQuizzes >= 7,
-        progress: Math.min(stats.completedQuizzes >= 7 ? 1 : 0, 1),
-        target: 1,
+        progress: Math.min(stats.completedQuizzes, 7),
+        target: 7,
         category: 'Fun',
         points: 77
       },

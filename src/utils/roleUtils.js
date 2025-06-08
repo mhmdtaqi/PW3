@@ -5,16 +5,25 @@
  * Get user role from localStorage or token
  */
 export const getUserRole = () => {
-  // First try localStorage
-  const storedRole = localStorage.getItem('role');
+  // First try localStorage with correct key (userRole, not role)
+  const storedRole = localStorage.getItem('userRole');
   if (storedRole) return storedRole;
 
-  // Fallback to token
+  // Fallback to old key for backward compatibility
+  const oldStoredRole = localStorage.getItem('role');
+  if (oldStoredRole) {
+    // Migrate to new key
+    localStorage.setItem('userRole', oldStoredRole);
+    localStorage.removeItem('role');
+    return oldStoredRole;
+  }
+
+  // Fallback to token (though JWT doesn't contain role)
   const token = localStorage.getItem('token');
   if (token) {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.role || 'student'; // Default to student
+      return payload.role || 'student';
     } catch (error) {
       console.error('Error decoding token for role:', error);
     }

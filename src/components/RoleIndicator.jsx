@@ -1,8 +1,9 @@
 import React from 'react';
-import { getUserRole } from '../utils/roleUtils';
+import { useAuth, useRole } from '../hooks/useAuth';
 
 const RoleIndicator = ({ className = "" }) => {
-  const userRole = getUserRole();
+  const { user } = useAuth();
+  const { userRole, isAdmin, isTeacher, isStudent } = useRole();
 
   const getRoleInfo = (role) => {
     switch (role) {

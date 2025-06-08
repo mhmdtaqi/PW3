@@ -4,8 +4,9 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import LoginPage from "./pages/LoginPage";
-import SignupPage from "./pages/SignupPage";
+import ErrorBoundary from "./components/common/ErrorBoundary";
+import LoginPage from "./pages/auth/LoginPage";
+import SignupPage from "./pages/auth/SignupPage";
 import DashboardPage from "./pages/DashboardPage";
 import DaftarKategori from "./pages/daftarKategori";
 import DaftarTingkatan from "./pages/daftarTingkatan";
@@ -16,7 +17,7 @@ import JoinKelasPage from "./pages/JoinKelasPage";
 import KuisPage from "./pages/KuisPage";
 import ManageSoalPage from "./pages/ManageSoalPage";
 import AmbilKuisPage from "./pages/AmbilKuisPage";
-import JawabKuisPage from "./pages/JawabKuisPage";
+import JawabKuisPage from "./pages/quiz/JawabKuisPage";
 import HasilKuisPage from "./pages/HasilKuisPage";
 import DetailHasilKuisPage from "./pages/DetailHasilKuisPage";
 import ProfilPage from "./pages/ProfilPage";
@@ -37,13 +38,14 @@ const PrivateRoute = ({ children }) => {
 
 const App = () => {
   return (
-    <Router
-      future={{
-        v7_startTransition: true,
-        v7_relativeSplatPath: true,
-      }}
-    >
-      <Routes>
+    <ErrorBoundary>
+      <Router
+        future={{
+          v7_startTransition: true,
+          v7_relativeSplatPath: true,
+        }}
+      >
+        <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<SignupPage />} />
         <Route
@@ -258,8 +260,11 @@ const App = () => {
         />
 
         <Route path="/" element={<Navigate to="/login" />} />
-      </Routes>
-    </Router>
+
+
+        </Routes>
+      </Router>
+    </ErrorBoundary>
   );
 };
 

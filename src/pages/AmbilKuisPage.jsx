@@ -52,8 +52,12 @@ const AmbilKuisPage = () => {
   const { userId, userName } = getUserInfo();
 
   useEffect(() => {
-    fetchKuis();
-    fetchFilterOptions();
+    // Load data sequentially to avoid overwhelming database connections
+    const loadData = async () => {
+      await fetchKuis();
+      await fetchFilterOptions();
+    };
+    loadData();
   }, []);
 
   useEffect(() => {
@@ -87,44 +91,62 @@ const AmbilKuisPage = () => {
   const fetchFilterOptions = async () => {
     try {
       const token = localStorage.getItem('token');
-      
-      // Fetch kategoris
-      const kategoriResponse = await fetch(`${BASE_URL}/kategori/get-kategori`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      });
-      if (kategoriResponse.ok) {
-        const kategoriData = await kategoriResponse.json();
-        setKategoris(kategoriData.data || []);
+
+      // Fetch kategoris first
+      try {
+        const kategoriResponse = await fetch(`${BASE_URL}/kategori/get-kategori`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        });
+        if (kategoriResponse.ok) {
+          const kategoriData = await kategoriResponse.json();
+          setKategoris(kategoriData.data || []);
+        }
+      } catch (error) {
+        console.error('Error fetching kategoris:', error);
       }
 
-      // Fetch tingkatans
-      const tingkatanResponse = await fetch(`${BASE_URL}/tingkatan/get-tingkatan`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      });
-      if (tingkatanResponse.ok) {
-        const tingkatanData = await tingkatanResponse.json();
-        setTingkatans(tingkatanData.data || []);
+      // Small delay to avoid overwhelming database
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Fetch tingkatans second
+      try {
+        const tingkatanResponse = await fetch(`${BASE_URL}/tingkatan/get-tingkatan`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        });
+        if (tingkatanResponse.ok) {
+          const tingkatanData = await tingkatanResponse.json();
+          setTingkatans(tingkatanData.data || []);
+        }
+      } catch (error) {
+        console.error('Error fetching tingkatans:', error);
       }
 
-      // Fetch pendidikans
-      const pendidikanResponse = await fetch(`${BASE_URL}/pendidikan/get-pendidikan`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      });
-      if (pendidikanResponse.ok) {
-        const pendidikanData = await pendidikanResponse.json();
-        setPendidikans(pendidikanData.data || []);
+      // Small delay to avoid overwhelming database
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Fetch pendidikans third
+      try {
+        const pendidikanResponse = await fetch(`${BASE_URL}/pendidikan/get-pendidikan`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        });
+        if (pendidikanResponse.ok) {
+          const pendidikanData = await pendidikanResponse.json();
+          setPendidikans(pendidikanData.data || []);
+        }
+      } catch (error) {
+        console.error('Error fetching pendidikans:', error);
       }
     } catch (error) {
       console.error('Error fetching filter options:', error);
