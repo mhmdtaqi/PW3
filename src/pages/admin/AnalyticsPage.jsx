@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { api } from '../services/api';
-import { getGradeFromScore, getGradeColor, getScoreColor, getConsistentScoreInfo } from '../utils/gradeUtils';
+import { api } from '../../services/api';
+import { getGradeFromScore, getGradeColor, getScoreColor, getConsistentScoreInfo } from '../../utils/gradeUtils';
 
 const BASE_URL = import.meta.env.VITE_API_URL ||
   (import.meta.env.DEV ? "/api" : "https://brainquiz0.up.railway.app");

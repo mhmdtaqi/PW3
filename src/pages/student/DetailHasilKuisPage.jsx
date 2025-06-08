@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getConsistentScoreInfo } from '../utils/gradeUtils';
+import { getConsistentScoreInfo } from '../../utils/gradeUtils';
+import { parseOptions } from '../../utils/optionsParser';
 
 // Use the same BASE_URL logic as other components
 const BASE_URL = import.meta.env.VITE_API_URL ||
@@ -132,17 +133,7 @@ const DetailHasilKuisPage = () => {
     }
   };
 
-  const parseOptions = (optionsJson) => {
-    try {
-      if (typeof optionsJson === 'string') {
-        return JSON.parse(optionsJson);
-      }
-      return optionsJson || [];
-    } catch (error) {
-      console.error('Error parsing options:', error);
-      return [];
-    }
-  };
+
 
 
 
@@ -267,7 +258,7 @@ const DetailHasilKuisPage = () => {
         {soalList.map((soal, index) => {
           const options = parseOptions(soal.options_json || soal.Options);
           // Note: We don't have user answers from the API, so we'll show the correct answers
-          
+
           return (
             <div
               key={soal.ID}
@@ -280,9 +271,9 @@ const DetailHasilKuisPage = () => {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-bold text-slate-800 mb-4">{soal.question}</h3>
-                  
+
                   <div className="space-y-3">
-                    {options.map((option, optIndex) => {
+                    {Array.isArray(options) && options.length > 0 ? options.map((option, optIndex) => {
                       const isCorrect = option === soal.correct_answer;
                       
                       return (
@@ -308,7 +299,14 @@ const DetailHasilKuisPage = () => {
                           )}
                         </div>
                       );
-                    })}
+                    }) : (
+                      <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
+                        <p className="text-yellow-800 text-sm">
+                          <strong>⚠️ Data options tidak tersedia</strong><br />
+                          Jawaban benar: <span className="font-semibold">{soal.correct_answer || 'Tidak tersedia'}</span>
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

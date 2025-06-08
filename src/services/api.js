@@ -360,6 +360,26 @@ export const api = {
     }
   },
 
+  // Get students in a class (for future implementation)
+  getStudentsByKelasId: async (kelasId) => {
+    try {
+      const response = await fetch(`${BASE_URL}/kelas/get-students/${kelasId}`, {
+        method: "GET",
+        headers: getAuthHeader(),
+        credentials: 'include',
+      });
+      return handleResponse(response);
+    } catch (error) {
+      console.error("Error fetching students by kelas id:", error);
+      // Return mock response for now (API not implemented yet)
+      return {
+        success: true,
+        data: [], // Empty array = no students yet
+        message: "API get-students belum diimplementasi di backend"
+      };
+    }
+  },
+
   // Kuis
   getKuis: async () => {
     try {

@@ -1,6 +1,6 @@
 import React from "react";
-import DataTable from "../components/DataTable";
-import { api } from "../services/api";
+import DataTable from "../../components/DataTable";
+import { api } from "../../services/api";
 
 const DaftarKategori = () => {
   const fields = [

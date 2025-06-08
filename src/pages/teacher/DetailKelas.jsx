@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { api } from "../services/api";
-import JoinCodeDisplay from "../components/JoinCodeDisplay";
-import { parseOptionsWithKeys } from "../utils/optionsParser";
+import { api } from "../../services/api";
+import JoinCodeDisplay from "../../components/JoinCodeDisplay";
+import { parseOptionsWithKeys } from "../../utils/optionsParser";
 
 const DetailKelas = () => {
   const { id } = useParams();

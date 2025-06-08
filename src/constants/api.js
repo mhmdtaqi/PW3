@@ -1,6 +1,5 @@
-// API Configuration Constants
-export const BASE_URL = import.meta.env.VITE_API_URL ||
-  (import.meta.env.DEV ? "http://localhost:8000" : "https://brainquiz0.up.railway.app");
+// API Configuration Constants - Railway Deployment
+export const BASE_URL = import.meta.env.VITE_API_URL || "https://brainquiz0.up.railway.app";
 
 // API Endpoints
 export const API_ENDPOINTS = {

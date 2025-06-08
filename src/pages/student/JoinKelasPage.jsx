@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { api } from '../services/api';
-import JoinCodeDisplay from '../components/JoinCodeDisplay';
+import { api } from '../../services/api';
+import JoinCodeDisplay from '../../components/JoinCodeDisplay';
 
 const JoinKelasPage = () => {
   const [joinedClasses, setJoinedClasses] = useState([]);

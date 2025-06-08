@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getConsistentScoreInfo } from '../utils/gradeUtils';
+import { getConsistentScoreInfo } from '../../utils/gradeUtils';
 
 // Use the same BASE_URL logic as other components
 const BASE_URL = import.meta.env.VITE_API_URL ||

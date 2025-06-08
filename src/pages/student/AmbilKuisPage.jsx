@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import JoinClassModal from '../components/JoinClassModal';
+import JoinClassModal from '../../components/JoinClassModal';
 
-// Use the same BASE_URL logic as other components
-const BASE_URL = import.meta.env.VITE_API_URL ||
-  (import.meta.env.DEV ? "/api" : "https://brainquiz0.up.railway.app");
+// Use Railway deployment URL
+const BASE_URL = import.meta.env.VITE_API_URL || "https://brainquiz0.up.railway.app";
 
 const AmbilKuisPage = () => {
   const [kuisList, setKuisList] = useState([]);

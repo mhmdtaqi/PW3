@@ -1,10 +1,10 @@
 import React from "react";
-import DataTable from "../components/DataTable";
-import { api } from "../services/api";
+import DataTable from "../../components/DataTable";
+import { api } from "../../services/api";
 
-const DaftarTingkatan = () => {
+const DaftarPendidikan = () => {
   const fields = [
-    { name: "name", label: "Nama Tingkatan" },
+    { name: "name", label: "Nama Pendidikan" },
     { name: "description", label: "Deskripsi", type: "textarea" },
   ];
 
@@ -25,15 +25,15 @@ const DaftarTingkatan = () => {
   const handleAdd = async (data) => {
     try {
       console.log("Data yang akan ditambahkan:", data);
-      const response = await api.addTingkatan(data);
+      const response = await api.addPendidikan(data);
       console.log("Response dari server:", response);
 
       if (!response.success) {
-        throw new Error(response.message || "Gagal menambahkan tingkatan");
+        throw new Error(response.message || "Gagal menambahkan pendidikan");
       }
-      alert("Tingkatan berhasil ditambahkan");
+      alert("Pendidikan berhasil ditambahkan");
     } catch (error) {
-      console.error("Error saat menambahkan tingkatan:", error);
+      console.error("Error saat menambahkan pendidikan:", error);
       throw error;
     }
   };
@@ -42,23 +42,23 @@ const DaftarTingkatan = () => {
     try {
       const itemId = id || data?.id || data?.ID;
       if (!itemId) {
-        throw new Error("ID tingkatan tidak ditemukan");
+        throw new Error("ID pendidikan tidak ditemukan");
       }
 
       console.log("ID yang akan diupdate:", itemId);
       console.log("Data yang akan diupdate:", data);
-      const response = await api.updateTingkatan(itemId, {
+      const response = await api.updatePendidikan(itemId, {
         name: data.name,
         description: data.description,
       });
       console.log("Response dari server:", response);
 
       if (!response.success) {
-        throw new Error(response.message || "Gagal mengupdate tingkatan");
+        throw new Error(response.message || "Gagal mengupdate pendidikan");
       }
       return true;
     } catch (error) {
-      console.error("Error saat mengupdate tingkatan:", error);
+      console.error("Error saat mengupdate pendidikan:", error);
       throw error;
     }
   };
@@ -67,27 +67,27 @@ const DaftarTingkatan = () => {
     try {
       const itemId = typeof id === 'object' ? (id?.id || id?.ID) : id;
       if (!itemId) {
-        throw new Error("ID tingkatan tidak ditemukan");
+        throw new Error("ID pendidikan tidak ditemukan");
       }
 
       console.log("ID yang akan dihapus:", itemId);
-      const response = await api.deleteTingkatan(itemId);
+      const response = await api.deletePendidikan(itemId);
       console.log("Response dari server:", response);
 
       if (!response.success) {
-        throw new Error(response.message || "Gagal menghapus tingkatan");
+        throw new Error(response.message || "Gagal menghapus pendidikan");
       }
       return true;
     } catch (error) {
-      console.error("Error saat menghapus tingkatan:", error);
+      console.error("Error saat menghapus pendidikan:", error);
       throw error;
     }
   };
 
   return (
     <DataTable
-      title="Daftar Tingkatan"
-      endpoint="https://brainquiz0.up.railway.app/tingkatan/get-tingkatan"
+      title="Daftar Pendidikan"
+      endpoint="https://brainquiz0.up.railway.app/pendidikan/get-pendidikan"
       fields={fields}
       onAdd={handleAdd}
       onEdit={handleEdit}
@@ -97,4 +97,4 @@ const DaftarTingkatan = () => {
   );
 };
 
-export default DaftarTingkatan;
+export default DaftarPendidikan;

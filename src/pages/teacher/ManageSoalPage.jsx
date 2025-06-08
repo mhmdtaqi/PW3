@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { parseOptions, normalizeOptionsForForm } from '../utils/optionsParser';
+import { parseOptions, normalizeOptionsForForm } from '../../utils/optionsParser';
 
 // Use the same BASE_URL logic as other components
 const BASE_URL = import.meta.env.VITE_API_URL ||

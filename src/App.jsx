@@ -8,27 +8,27 @@ import ErrorBoundary from "./components/common/ErrorBoundary";
 import LoginPage from "./pages/auth/LoginPage";
 import SignupPage from "./pages/auth/SignupPage";
 import DashboardPage from "./pages/DashboardPage";
-import DaftarKategori from "./pages/daftarKategori";
-import DaftarTingkatan from "./pages/daftarTingkatan";
-import DaftarPendidikan from "./pages/daftarPendidikan";
-import DaftarKelas from "./pages/daftarKelas";
-import MyClassesPage from "./pages/MyClassesPage";
-import DetailKelas from "./pages/DetailKelas";
-import JoinKelasPage from "./pages/JoinKelasPage";
+import KategoriPage from "./pages/management/KategoriPage";
+import TingkatanPage from "./pages/management/TingkatanPage";
+import PendidikanPage from "./pages/management/PendidikanPage";
+import KelasPage from "./pages/management/KelasPage";
+import MyClassesPage from "./pages/teacher/MyClassesPage";
+import DetailKelas from "./pages/teacher/DetailKelas";
+import JoinKelasPage from "./pages/student/JoinKelasPage";
 import KuisPage from "./pages/KuisPage";
-import ManageSoalPage from "./pages/ManageSoalPage";
-import AmbilKuisPage from "./pages/AmbilKuisPage";
+import ManageSoalPage from "./pages/teacher/ManageSoalPage";
+import AmbilKuisPage from "./pages/student/AmbilKuisPage";
 import JawabKuisPage from "./pages/quiz/JawabKuisPage";
-import HasilKuisPage from "./pages/HasilKuisPage";
-import DetailHasilKuisPage from "./pages/DetailHasilKuisPage";
+import HasilKuisPage from "./pages/student/HasilKuisPage";
+import DetailHasilKuisPage from "./pages/student/DetailHasilKuisPage";
 import ProfilPage from "./pages/ProfilPage";
-import ManageSoal from "./pages/admin/ManageSoal";
-import ManageKuis from "./pages/admin/ManageKuis";
-import AnalyticsPage from "./pages/AnalyticsPage";
-import RecommendationPage from "./pages/RecommendationPage";
-import LeaderboardPage from "./pages/LeaderboardPage";
-import AchievementsPage from "./pages/AchievementsPage";
-import StudyPlannerPage from "./pages/StudyPlannerPage";
+import SoalManagementPage from "./pages/admin/SoalManagementPage";
+import KuisManagementPage from "./pages/admin/KuisManagementPage";
+import AnalyticsPage from "./pages/admin/AnalyticsPage";
+import RecommendationPage from "./pages/admin/RecommendationPage";
+import LeaderboardPage from "./pages/student/LeaderboardPage";
+import AchievementsPage from "./pages/student/AchievementsPage";
+import StudyPlannerPage from "./pages/student/StudyPlannerPage";
 import LayoutWrapper from "./components/LayoutWrapper";
 
 
@@ -64,7 +64,7 @@ const App = () => {
           element={
             <PrivateRoute>
               <LayoutWrapper>
-                <DaftarKategori />
+                <KategoriPage />
               </LayoutWrapper>
             </PrivateRoute>
           }
@@ -74,7 +74,7 @@ const App = () => {
           element={
             <PrivateRoute>
               <LayoutWrapper>
-                <DaftarTingkatan />
+                <TingkatanPage />
               </LayoutWrapper>
             </PrivateRoute>
           }
@@ -84,7 +84,7 @@ const App = () => {
           element={
             <PrivateRoute>
               <LayoutWrapper>
-                <DaftarPendidikan />
+                <PendidikanPage />
               </LayoutWrapper>
             </PrivateRoute>
           }
@@ -94,7 +94,7 @@ const App = () => {
           element={
             <PrivateRoute>
               <LayoutWrapper>
-                <DaftarKelas />
+                <KelasPage />
               </LayoutWrapper>
             </PrivateRoute>
           }
@@ -204,7 +204,7 @@ const App = () => {
           element={
             <PrivateRoute>
               <LayoutWrapper>
-                <ManageSoal />
+                <SoalManagementPage />
               </LayoutWrapper>
             </PrivateRoute>
           }
@@ -214,7 +214,7 @@ const App = () => {
           element={
             <PrivateRoute>
               <LayoutWrapper>
-                <ManageKuis />
+                <KuisManagementPage />
               </LayoutWrapper>
             </PrivateRoute>
           }

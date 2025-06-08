@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { api } from '../services/api';
-import JoinCodeDisplay from '../components/JoinCodeDisplay';
+import { api } from '../../services/api';
+import JoinCodeDisplay from '../../components/JoinCodeDisplay';
 
 const MyClassesPage = () => {
   const [classes, setClasses] = useState([]);
@@ -11,6 +11,8 @@ const MyClassesPage = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editFormData, setEditFormData] = useState({ name: '', description: '' });
   const [openDropdown, setOpenDropdown] = useState(null);
+  const [classStats, setClassStats] = useState({}); // Store stats for each class
+  const [statsLoading, setStatsLoading] = useState(false);
 
   useEffect(() => {
     fetchClasses();
@@ -35,7 +37,11 @@ const MyClassesPage = () => {
       setLoading(true);
       const response = await api.getKelas();
       if (response.success) {
-        setClasses(response.data || []);
+        const classesData = response.data || [];
+        setClasses(classesData);
+
+        // Fetch stats for each class
+        await fetchClassStats(classesData);
       } else {
         setError('Gagal memuat data kelas');
       }
@@ -44,6 +50,50 @@ const MyClassesPage = () => {
       setError('Terjadi kesalahan saat memuat data');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchClassStats = async (classesData) => {
+    setStatsLoading(true);
+    const stats = {};
+
+    // Process classes in parallel for better performance
+    const statsPromises = classesData.map(async (kelas) => {
+      const kelasId = kelas.ID || kelas.id;
+      try {
+        // Fetch quiz count for this class
+        const kuisResponse = await api.getKuisByKelasId(kelasId);
+        const kuisCount = kuisResponse.success ? (kuisResponse.data || []).length : 0;
+
+        // Fetch student count for this class (future ready)
+        const studentsResponse = await api.getStudentsByKelasId(kelasId);
+        const studentCount = studentsResponse.success ? (studentsResponse.data || []).length : 0;
+
+        return {
+          kelasId,
+          kuisCount,
+          studentCount
+        };
+      } catch (error) {
+        console.error(`Error fetching stats for class ${kelasId}:`, error);
+        return {
+          kelasId,
+          kuisCount: 0,
+          studentCount: 0
+        };
+      }
+    });
+
+    try {
+      const results = await Promise.all(statsPromises);
+      results.forEach(({ kelasId, kuisCount, studentCount }) => {
+        stats[kelasId] = { kuisCount, studentCount };
+      });
+      setClassStats(stats);
+    } catch (error) {
+      console.error('Error processing class stats:', error);
+    } finally {
+      setStatsLoading(false);
     }
   };
 
@@ -270,11 +320,23 @@ const MyClassesPage = () => {
                   {/* Class Stats */}
                   <div className="grid grid-cols-2 gap-4 mb-6">
                     <div className="text-center p-3 bg-blue-50 rounded-lg">
-                      <div className="text-2xl font-bold text-blue-600">0</div>
+                      <div className="text-2xl font-bold text-blue-600">
+                        {statsLoading ? (
+                          <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                        ) : (
+                          classStats[kelas.ID || kelas.id]?.studentCount || 0
+                        )}
+                      </div>
                       <div className="text-xs text-gray-600">Siswa</div>
                     </div>
                     <div className="text-center p-3 bg-purple-50 rounded-lg">
-                      <div className="text-2xl font-bold text-purple-600">0</div>
+                      <div className="text-2xl font-bold text-purple-600">
+                        {statsLoading ? (
+                          <div className="w-6 h-6 border-2 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                        ) : (
+                          classStats[kelas.ID || kelas.id]?.kuisCount || 0
+                        )}
+                      </div>
                       <div className="text-xs text-gray-600">Kuis</div>
                     </div>
                   </div>
