@@ -27,7 +27,17 @@ const DashboardPage = () => {
 
   // Get user info from localStorage directly
   const userName = localStorage.getItem('userName') || 'User';
-  const role = localStorage.getItem('role') || 'student';
+  const role = localStorage.getItem('userRole') || localStorage.getItem('role') || 'student';
+
+  // Debug role detection (development only)
+  if (import.meta.env.DEV) {
+    console.log('Dashboard Role Debug:', {
+      userRole: localStorage.getItem('userRole'),
+      role: localStorage.getItem('role'),
+      finalRole: role,
+      userName: userName
+    });
+  }
 
   useEffect(() => {
     // Fetch dashboard data only once

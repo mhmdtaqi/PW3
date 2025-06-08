@@ -32,10 +32,15 @@ const SignupPage = () => {
     }
 
     try {
-      console.log("Mencoba registrasi dengan:", { name, email, role });
+      if (import.meta.env.DEV) {
+        console.log("Mencoba registrasi dengan:", { name, email, role });
+      }
 
       const response = await userAPI.register({ name, email, password, role });
-      console.log("Response dari server:", response);
+
+      if (import.meta.env.DEV) {
+        console.log("Response dari server:", response);
+      }
 
       if (response.success) {
         // Success notification

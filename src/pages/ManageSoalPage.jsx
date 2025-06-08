@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { parseOptions, normalizeOptionsForForm } from '../utils/optionsParser';
 
 // Use the same BASE_URL logic as other components
 const BASE_URL = import.meta.env.VITE_API_URL ||
-  (import.meta.env.DEV ? "/api" : "https://brainquiz0.up.railway.app");
+  (import.meta.env.DEV ? "http://localhost:8000" : "https://brainquiz0.up.railway.app");
 
 const ManageSoalPage = () => {
   const { kuisId } = useParams();
@@ -81,23 +82,14 @@ const ManageSoalPage = () => {
   const handleEditSoal = (soal) => {
     setModalMode('edit');
     setSelectedSoal(soal);
-    
-    // Parse options from JSON
-    let options = ['', '', '', ''];
-    try {
-      if (soal.options_json) {
-        options = JSON.parse(soal.options_json);
-      } else if (soal.Options) {
-        options = Array.isArray(soal.Options) ? soal.Options : JSON.parse(soal.Options);
-      }
-    } catch (error) {
-      console.error('Error parsing options:', error);
-    }
+
+    // Parse options using utility function
+    const normalizedOptions = normalizeOptionsForForm(soal.options_json || soal.Options);
 
     setFormData({
-      question: soal.question,
-      options: options,
-      correct_answer: soal.correct_answer
+      question: soal.question || '',
+      options: normalizedOptions,
+      correct_answer: soal.correct_answer || ''
     });
     setShowModal(true);
   };
@@ -132,6 +124,12 @@ const ManageSoalPage = () => {
   const handleSubmitSoal = async (e) => {
     e.preventDefault();
     
+    // Validate that options is an array
+    if (!Array.isArray(formData.options)) {
+      alert('Error: Format pilihan jawaban tidak valid');
+      return;
+    }
+
     // Validate that all options are filled
     if (formData.options.some(option => !option.trim())) {
       alert('Semua pilihan jawaban harus diisi');
@@ -186,22 +184,16 @@ const ManageSoalPage = () => {
   };
 
   const updateOption = (index, value) => {
+    if (!Array.isArray(formData.options)) {
+      console.error('formData.options is not an array:', formData.options);
+      return;
+    }
     const newOptions = [...formData.options];
     newOptions[index] = value;
     setFormData({...formData, options: newOptions});
   };
 
-  const parseOptions = (optionsData) => {
-    try {
-      if (typeof optionsData === 'string') {
-        return JSON.parse(optionsData);
-      }
-      return optionsData || [];
-    } catch (error) {
-      console.error('Error parsing options:', error);
-      return [];
-    }
-  };
+  // parseOptions function moved to utils/optionsParser.js
 
   if (loading) {
     return (
@@ -314,7 +306,7 @@ const ManageSoalPage = () => {
                     <h3 className="text-lg font-bold text-slate-800 mb-4">{soal.question}</h3>
                     
                     <div className="space-y-2 mb-4">
-                      {options.map((option, optIndex) => (
+                      {Array.isArray(options) && options.length > 0 ? options.map((option, optIndex) => (
                         <div
                           key={optIndex}
                           className={`flex items-center p-3 rounded-xl border-2 ${
@@ -333,7 +325,9 @@ const ManageSoalPage = () => {
                             </svg>
                           )}
                         </div>
-                      ))}
+                      )) : (
+                        <div className="text-slate-500 text-sm">Tidak ada pilihan jawaban</div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -417,7 +411,7 @@ const ManageSoalPage = () => {
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-4">Pilihan Jawaban</label>
                 <div className="space-y-3">
-                  {formData.options.map((option, index) => (
+                  {Array.isArray(formData.options) ? formData.options.map((option, index) => (
                     <div key={index} className="flex items-center space-x-3">
                       <span className="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-sm font-semibold">
                         {String.fromCharCode(65 + index)}
@@ -431,7 +425,9 @@ const ManageSoalPage = () => {
                         required
                       />
                     </div>
-                  ))}
+                  )) : (
+                    <div className="text-red-500 text-sm">Error: Options tidak valid</div>
+                  )}
                 </div>
               </div>
 
@@ -444,13 +440,13 @@ const ManageSoalPage = () => {
                   required
                 >
                   <option value="">Pilih jawaban yang benar</option>
-                  {formData.options.map((option, index) => (
+                  {Array.isArray(formData.options) ? formData.options.map((option, index) => (
                     option.trim() && (
                       <option key={index} value={option}>
                         {String.fromCharCode(65 + index)}. {option}
                       </option>
                     )
-                  ))}
+                  )) : null}
                 </select>
               </div>
 

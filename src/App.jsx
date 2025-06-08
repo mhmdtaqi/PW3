@@ -12,6 +12,7 @@ import DaftarKategori from "./pages/daftarKategori";
 import DaftarTingkatan from "./pages/daftarTingkatan";
 import DaftarPendidikan from "./pages/daftarPendidikan";
 import DaftarKelas from "./pages/daftarKelas";
+import MyClassesPage from "./pages/MyClassesPage";
 import DetailKelas from "./pages/DetailKelas";
 import JoinKelasPage from "./pages/JoinKelasPage";
 import KuisPage from "./pages/KuisPage";
@@ -94,6 +95,16 @@ const App = () => {
             <PrivateRoute>
               <LayoutWrapper>
                 <DaftarKelas />
+              </LayoutWrapper>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/my-classes"
+          element={
+            <PrivateRoute>
+              <LayoutWrapper>
+                <MyClassesPage />
               </LayoutWrapper>
             </PrivateRoute>
           }

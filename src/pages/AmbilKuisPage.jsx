@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import JoinClassModal from '../components/JoinClassModal';
 
 // Use the same BASE_URL logic as other components
 const BASE_URL = import.meta.env.VITE_API_URL ||
@@ -16,6 +17,7 @@ const AmbilKuisPage = () => {
   const [kategoris, setKategoris] = useState([]);
   const [tingkatans, setTingkatans] = useState([]);
   const [pendidikans, setPendidikans] = useState([]);
+  const [showJoinModal, setShowJoinModal] = useState(false);
   const navigate = useNavigate();
 
   // Get user info
@@ -196,6 +198,13 @@ const AmbilKuisPage = () => {
     setSelectedPendidikan('');
   };
 
+  const handleJoinSuccess = (kelas) => {
+    // Refresh kuis list after joining a class
+    fetchKuis();
+    // Show success message
+    alert(`Berhasil bergabung dengan kelas: ${kelas.name}`);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-8 flex items-center justify-center">
@@ -211,12 +220,26 @@ const AmbilKuisPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-8">
       {/* Header */}
       <div className="mb-8 animate-fade-in">
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-4">
-          Ambil Kuis 📝
-        </h1>
-        <p className="text-xl text-slate-600 font-medium leading-relaxed max-w-3xl">
-          Pilih kuis yang ingin Anda kerjakan dan uji pengetahuan Anda dengan berbagai topik menarik.
-        </p>
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-4">
+              Ambil Kuis 📝
+            </h1>
+            <p className="text-xl text-slate-600 font-medium leading-relaxed max-w-3xl">
+              Pilih kuis yang ingin Anda kerjakan dan uji pengetahuan Anda dengan berbagai topik menarik.
+            </p>
+          </div>
+          <button
+            onClick={() => setShowJoinModal(true)}
+            className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center space-x-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            <span>Bergabung Kelas</span>
+          </button>
+        </div>
+
         {/* User Info */}
         {userId && (
           <div className="mt-4 p-3 bg-blue-50 rounded-lg text-sm text-blue-700">
@@ -353,13 +376,22 @@ const AmbilKuisPage = () => {
                 </div>
                 
                 <div className="flex flex-wrap gap-2">
+                  {/* Privacy Badge */}
+                  <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                    kuis.is_private
+                      ? 'bg-orange-100 text-orange-800'
+                      : 'bg-green-100 text-green-800'
+                  }`}>
+                    {kuis.is_private ? '🔒 Private' : '🌍 Public'}
+                  </span>
+
                   {kuis.Kategori && (
                     <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">
                       {kuis.Kategori.name}
                     </span>
                   )}
                   {kuis.Tingkatan && (
-                    <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
+                    <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs font-semibold rounded-full">
                       {kuis.Tingkatan.name}
                     </span>
                   )}
@@ -427,6 +459,13 @@ const AmbilKuisPage = () => {
           </button>
         </div>
       )}
+
+      {/* Join Class Modal */}
+      <JoinClassModal
+        isOpen={showJoinModal}
+        onClose={() => setShowJoinModal(false)}
+        onSuccess={handleJoinSuccess}
+      />
     </div>
   );
 };

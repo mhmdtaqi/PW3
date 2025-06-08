@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { api } from "../services/api";
+import JoinCodeDisplay from "../components/JoinCodeDisplay";
+import { parseOptionsWithKeys } from "../utils/optionsParser";
 
 const DetailKelas = () => {
   const { id } = useParams();
@@ -227,13 +229,25 @@ const DetailKelas = () => {
                 <p className="text-gray-600 text-lg leading-relaxed max-w-2xl">
                   {kelas.description}
                 </p>
-                <div className="flex items-center space-x-4 mt-4">
+                <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-6 mt-4">
                   <div className="flex items-center space-x-2 text-sm text-gray-500">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                     </svg>
                     <span>{kuisList.length} Kuis Tersedia</span>
                   </div>
+
+                  {/* Join Code untuk Guru/Admin */}
+                  {(userRole === "admin" || userRole === "teacher") && kelas.join_code && (
+                    <JoinCodeDisplay
+                      joinCode={kelas.join_code}
+                      variant="green"
+                      size="normal"
+                      showLabel={true}
+                      showCopyButton={true}
+                      showDescription={true}
+                    />
+                  )}
                 </div>
               </div>
 
@@ -379,29 +393,8 @@ const DetailKelas = () => {
                           </div>
 
                           {soalList.map((soal, index) => {
-                            let options = [];
-                            try {
-                              if (soal.options_json) {
-                                const parsedOptions = JSON.parse(soal.options_json);
-                                if (
-                                  parsedOptions &&
-                                  Object.keys(parsedOptions).length > 0
-                                ) {
-                                  options = Object.entries(parsedOptions).map(
-                                    ([key, value]) => ({
-                                      key,
-                                      value,
-                                    })
-                                  );
-                                }
-                              }
-                            } catch (err) {
-                              console.error(
-                                `Error parsing options untuk soal ${index + 1}:`,
-                                err
-                              );
-                              options = [];
-                            }
+                            // Parse options using utility function
+                            const options = parseOptionsWithKeys(soal.options_json || soal.Options);
 
                             const isAnswered = answers[soal.ID || soal.id];
 

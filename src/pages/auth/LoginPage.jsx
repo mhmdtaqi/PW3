@@ -19,10 +19,15 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      console.log("Mencoba login dengan:", { email });
+      if (import.meta.env.DEV) {
+        console.log("Mencoba login dengan:", { email });
+      }
 
       const response = await userAPI.login({ email, password });
-      console.log("Response dari server:", response);
+
+      if (import.meta.env.DEV) {
+        console.log("Response dari server:", response);
+      }
 
       if (response.success && response.data) {
         const { token, role, user_id, name } = response.data;
@@ -43,7 +48,9 @@ const LoginPage = () => {
         setError(response.message || "Format response tidak valid");
       }
     } catch (err) {
-      console.error("Error saat login:", err);
+      if (import.meta.env.DEV) {
+        console.error("Error saat login:", err);
+      }
       setError(err.message || "Terjadi kesalahan saat login");
     } finally {
       setLoading(false);

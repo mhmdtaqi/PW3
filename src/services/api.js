@@ -50,7 +50,6 @@ export const api = {
         name: data.name,
         description: data.description,
       };
-      console.log("Sending data to addKategori:", kategoriData);
 
       const response = await fetch(`${BASE_URL}/kategori/add-kategori`, {
         method: "POST",
@@ -71,10 +70,6 @@ export const api = {
         name: data.name,
         description: data.description,
       };
-      console.log("Sending data to updateKategori:", {
-        id,
-        data: kategoriData,
-      });
 
       const response = await fetch(
         `${BASE_URL}/kategori/update-kategori/${id}`,
@@ -94,7 +89,6 @@ export const api = {
 
   deleteKategori: async (id) => {
     try {
-      console.log("Sending request to deleteKategori:", id);
       const response = await fetch(
         `${BASE_URL}/kategori/delete-kategori/${id}`,
         {
@@ -313,6 +307,59 @@ export const api = {
     }
   },
 
+  // Join Class with Code
+  getJoinedClasses: async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/kelas/get-joined-classes`, {
+        method: "GET",
+        headers: getAuthHeader(),
+        credentials: 'include',
+      });
+      return handleResponse(response);
+    } catch (error) {
+      console.error("Error fetching joined classes:", error);
+      // Return empty result for now (API not implemented yet)
+      return {
+        success: true,
+        data: [], // Empty array = no joined classes yet
+        message: "API not implemented yet"
+      };
+    }
+  },
+
+  joinClassWithCode: async (joinCode) => {
+    try {
+      const response = await fetch(`${BASE_URL}/kelas/join-with-code`, {
+        method: "POST",
+        headers: getAuthHeader(),
+        credentials: 'include',
+        body: JSON.stringify({ join_code: joinCode }),
+      });
+      return handleResponse(response);
+    } catch (error) {
+      console.error("Error joining class with code:", error);
+      // Return mock response for now (API not implemented yet)
+      return {
+        success: false,
+        message: "API join-with-code belum diimplementasi di backend"
+      };
+    }
+  },
+
+  leaveClass: async (kelasId) => {
+    try {
+      const response = await fetch(`${BASE_URL}/kelas/leave-class/${kelasId}`, {
+        method: "DELETE",
+        headers: getAuthHeader(),
+        credentials: 'include',
+      });
+      return handleResponse(response);
+    } catch (error) {
+      console.error("Error leaving class:", error);
+      throw error;
+    }
+  },
+
   // Kuis
   getKuis: async () => {
     try {
@@ -355,7 +402,6 @@ export const api = {
         kelas_id: data.kelas_id,
         pendidikan_id: data.pendidikan_id,
       };
-      console.log("Sending data to addKuis:", kuisData);
 
       const response = await fetch(`${BASE_URL}/kuis/add-kuis`, {
         method: "POST",
@@ -380,7 +426,6 @@ export const api = {
         kelas_id: data.kelas_id,
         pendidikan_id: data.pendidikan_id,
       };
-      console.log("Sending data to updateKuis:", { id, data: kuisData });
 
       const response = await fetch(`${BASE_URL}/kuis/update-kuis/${id}`, {
         method: "PATCH",
@@ -397,7 +442,6 @@ export const api = {
 
   deleteKuis: async (id) => {
     try {
-      console.log("Sending request to deleteKuis:", id);
       const response = await fetch(`${BASE_URL}/kuis/delete-kuis/${id}`, {
         method: "DELETE",
         headers: getAuthHeader(),
@@ -459,7 +503,6 @@ export const api = {
         correct_answer: data.correct_answer,
         kuis_id: parseInt(data.kuis_id),
       };
-      console.log("Sending data to addSoal:", soalData);
 
       const response = await fetch(`${BASE_URL}/soal/add-soal`, {
         method: "POST",
@@ -494,7 +537,6 @@ export const api = {
         correct_answer: data.correct_answer,
         kuis_id: parseInt(data.kuis_id),
       };
-      console.log("Sending data to updateSoal:", soalData);
 
       const response = await fetch(`${BASE_URL}/soal/update-soal/${id}`, {
         method: "PATCH",
@@ -511,7 +553,6 @@ export const api = {
 
   deleteSoal: async (id) => {
     try {
-      console.log("Sending request to deleteSoal:", id);
       const response = await fetch(`${BASE_URL}/soal/delete-soal/${id}`, {
         method: "DELETE",
         headers: getAuthHeader(),
@@ -533,8 +574,6 @@ export const api = {
         Answer: answer.selected_answer,         // Backend expects Answer
         User_id: parseInt(answer.user_id),      // Backend expects User_id
       }));
-
-      console.log("Mengirim jawaban:", formattedAnswers);
 
       const response = await fetch(`${BASE_URL}/hasil-kuis/submit-jawaban`, {
         method: "POST",

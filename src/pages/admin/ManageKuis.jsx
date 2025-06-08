@@ -19,6 +19,7 @@ const ManageKuis = () => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
+    is_private: false,
     kategori_id: "",
     tingkatan_id: "",
     kelas_id: kelasId || "",
@@ -131,6 +132,7 @@ const ManageKuis = () => {
       const kuisData = {
         title: formData.title,
         description: formData.description,
+        is_private: formData.is_private,
         kategori_id: parseInt(formData.kategori_id),
         tingkatan_id: parseInt(formData.tingkatan_id),
         kelas_id: parseInt(formData.kelas_id),
@@ -163,6 +165,7 @@ const ManageKuis = () => {
       setFormData({
         title: "",
         description: "",
+        is_private: false,
         kategori_id: "",
         tingkatan_id: "",
         kelas_id: "",
@@ -235,6 +238,71 @@ const ManageKuis = () => {
                 rows="2"
                 required
               />
+            </div>
+
+            {/* Privacy Setting */}
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                Jenis Kuis
+              </label>
+              <div className="space-y-3">
+                <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+                  <input
+                    type="radio"
+                    id="public"
+                    name="privacy"
+                    checked={!formData.is_private}
+                    onChange={() => setFormData({ ...formData, is_private: false })}
+                    className="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                  />
+                  <div className="flex-1">
+                    <label htmlFor="public" className="flex items-center cursor-pointer">
+                      <span className="text-2xl mr-2">🌍</span>
+                      <div>
+                        <div className="font-medium text-gray-900">Kuis Public</div>
+                        <div className="text-sm text-gray-500">Semua siswa dapat melihat dan mengerjakan kuis ini</div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+                  <input
+                    type="radio"
+                    id="private"
+                    name="privacy"
+                    checked={formData.is_private}
+                    onChange={() => setFormData({ ...formData, is_private: true })}
+                    className="w-4 h-4 text-orange-600 focus:ring-orange-500"
+                  />
+                  <div className="flex-1">
+                    <label htmlFor="private" className="flex items-center cursor-pointer">
+                      <span className="text-2xl mr-2">🔒</span>
+                      <div>
+                        <div className="font-medium text-gray-900">Kuis Private</div>
+                        <div className="text-sm text-gray-500">Hanya anggota kelas yang dapat melihat dan mengerjakan kuis ini</div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {formData.is_private && (
+                <div className="mt-3 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                  <div className="flex items-start space-x-2">
+                    <svg className="w-5 h-5 text-orange-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div>
+                      <h4 className="text-sm font-medium text-orange-800">Kuis Private</h4>
+                      <p className="text-sm text-orange-700 mt-1">
+                        Kuis ini hanya akan terlihat oleh siswa yang sudah bergabung dengan kelas yang dipilih.
+                        Siswa perlu menggunakan kode join kelas untuk dapat mengakses kuis ini.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">

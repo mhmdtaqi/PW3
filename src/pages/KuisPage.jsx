@@ -168,6 +168,7 @@ const KuisPage = () => {
     setFormData({
       title: '',
       description: '',
+      is_private: false,
       kategori_id: '',
       tingkatan_id: '',
       kelas_id: '',
@@ -182,6 +183,7 @@ const KuisPage = () => {
     setFormData({
       title: kuis.title,
       description: kuis.description,
+      is_private: kuis.is_private || false,
       kategori_id: kuis.kategori_id,
       tingkatan_id: kuis.tingkatan_id,
       kelas_id: kuis.kelas_id,
@@ -238,6 +240,7 @@ const KuisPage = () => {
         body: JSON.stringify({
           title: formData.title,
           description: formData.description,
+          is_private: formData.is_private,
           kategori_id: parseInt(formData.kategori_id),
           tingkatan_id: parseInt(formData.tingkatan_id),
           kelas_id: parseInt(formData.kelas_id),
@@ -473,17 +476,60 @@ const KuisPage = () => {
                 </div>
                 
                 <div className="flex flex-wrap gap-2">
+                  {/* Privacy Badge */}
+                  <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                    kuis.is_private
+                      ? 'bg-orange-100 text-orange-800'
+                      : 'bg-green-100 text-green-800'
+                  }`}>
+                    {kuis.is_private ? '🔒 Private' : '🌍 Public'}
+                  </span>
+
                   {kuis.Kategori && (
                     <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">
                       {kuis.Kategori.name}
                     </span>
                   )}
                   {kuis.Tingkatan && (
-                    <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
+                    <span className="px-2 py-1 bg-indigo-100 text-indigo-800 text-xs font-semibold rounded-full">
                       {kuis.Tingkatan.name}
                     </span>
                   )}
                 </div>
+
+                {/* Join Code untuk Private Quiz */}
+                {kuis.is_private && kuis.Kelas && kuis.Kelas.join_code && (
+                  <div className="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="text-sm font-medium text-orange-800 mb-1">
+                          Kode Join untuk Quiz Private:
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <span className="font-mono font-bold text-orange-700 bg-orange-100 px-2 py-1 rounded text-sm">
+                            {kuis.Kelas.join_code}
+                          </span>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigator.clipboard.writeText(kuis.Kelas.join_code);
+                              alert('Kode join berhasil disalin!');
+                            }}
+                            className="p-1 hover:bg-orange-100 rounded transition-colors duration-200"
+                            title="Salin kode join"
+                          >
+                            <svg className="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-2 text-xs text-orange-600">
+                      Bagikan kode ini kepada siswa untuk mengakses quiz private
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Kuis Info */}
@@ -600,6 +646,52 @@ const KuisPage = () => {
                   rows="3"
                   required
                 />
+              </div>
+
+              {/* Privacy Setting */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-3">Jenis Kuis</label>
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-3 p-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors">
+                    <input
+                      type="radio"
+                      id="public"
+                      name="privacy"
+                      checked={!formData.is_private}
+                      onChange={() => setFormData({ ...formData, is_private: false })}
+                      className="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                    />
+                    <div className="flex-1">
+                      <label htmlFor="public" className="flex items-center cursor-pointer">
+                        <span className="text-xl mr-2">🌍</span>
+                        <div>
+                          <div className="font-medium text-slate-900">Kuis Public</div>
+                          <div className="text-sm text-slate-500">Semua siswa dapat melihat dan mengerjakan kuis ini</div>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-3 p-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors">
+                    <input
+                      type="radio"
+                      id="private"
+                      name="privacy"
+                      checked={formData.is_private}
+                      onChange={() => setFormData({ ...formData, is_private: true })}
+                      className="w-4 h-4 text-orange-600 focus:ring-orange-500"
+                    />
+                    <div className="flex-1">
+                      <label htmlFor="private" className="flex items-center cursor-pointer">
+                        <span className="text-xl mr-2">🔒</span>
+                        <div>
+                          <div className="font-medium text-slate-900">Kuis Private</div>
+                          <div className="text-sm text-slate-500">Hanya anggota kelas yang dapat melihat dan mengerjakan kuis ini</div>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

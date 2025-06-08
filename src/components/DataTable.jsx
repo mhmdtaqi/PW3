@@ -110,7 +110,6 @@ const DataTable = ({
     e.preventDefault();
     setError("");
     try {
-      console.log("Data yang akan ditambahkan:", newItem);
       const success = await onAdd(newItem);
       if (success) {
         setNewItem(
@@ -359,6 +358,40 @@ const DataTable = ({
                           </div>
                         </div>
                       ))}
+
+                      {/* Join Code untuk Kelas */}
+                      {title === "Daftar Kelas" && item.join_code && (
+                        <div className="mt-4 pt-4 border-t border-gray-200">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <div className="text-sm text-gray-500 font-medium mb-1">
+                                Kode Join
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <span className="font-mono font-bold text-green-700 bg-green-100 px-3 py-1 rounded-lg text-lg">
+                                  {item.join_code}
+                                </span>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigator.clipboard.writeText(item.join_code);
+                                    alert('Kode join berhasil disalin!');
+                                  }}
+                                  className="p-2 hover:bg-green-100 rounded-lg transition-colors duration-200"
+                                  title="Salin kode join"
+                                >
+                                  <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                  </svg>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="mt-2 text-xs text-gray-500">
+                            Bagikan kode ini kepada siswa untuk bergabung dengan kelas
+                          </div>
+                        </div>
+                      )}
                     </div>
                     <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 flex justify-end space-x-3 border-t border-gray-100">
                       <button

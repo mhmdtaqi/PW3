@@ -51,10 +51,19 @@ export const useAuth = () => {
   const login = (userData, token) => {
     const userRole = userData.role || userData.userRole;
 
+    // Debug login data
+    console.log('useAuth Login Debug:', {
+      userData,
+      userRole,
+      token: token ? 'exists' : 'missing'
+    });
+
     localStorage.setItem('token', token);
     localStorage.setItem('userId', userData.id || userData.userId);
     localStorage.setItem('userName', userData.name || userData.userName);
     localStorage.setItem('userRole', userRole);
+    // Also store as 'role' for backward compatibility
+    localStorage.setItem('role', userRole);
 
     setUser({
       userId: userData.id || userData.userId,
@@ -69,6 +78,7 @@ export const useAuth = () => {
     localStorage.removeItem('userId');
     localStorage.removeItem('userName');
     localStorage.removeItem('userRole');
+    localStorage.removeItem('role'); // Remove both keys
     setUser(null);
   };
 
